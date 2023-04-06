@@ -1,0 +1,16 @@
+# Define a 'Service' To Expose MySQL to Other Services
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+    tier: database
+spec:
+  ports:
+    - port: 3307
+      targetPort: 3307
+  selector:
+    app: mysql
+    tier: database
+  clusterIP: None # DNS is used, so clusterIP is not needed
