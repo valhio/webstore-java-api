@@ -16,6 +16,9 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +26,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -174,6 +178,23 @@ class UserControllerTest {
             when(userService.findUserByEmail(USER_EMAIL)).thenThrow(userNotFoundException);
             assertThrows(UserNotFoundException.class, () -> userController.findUserByEmail(USER_EMAIL));
             verify(userService, times(1)).findUserByEmail(USER_EMAIL);
+        }
+    }
+
+    @Nested
+    @DisplayName("Fetch all users")
+    class FetchAllUsers {
+
+        @Test
+        void testFetchAllUsers() {
+            Page<User> page = new PageImpl<>(List.of(user), PageRequest.of(0, 10), 1);
+            when(userService.getUsers("", 0, 10)).thenReturn(page);
+
+            ResponseEntity<HttpResponse> responseEntity = userController.getUsers(Optional.of(""), Optional.of(0), Optional.of(10));
+
+            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertEquals(page, responseEntity.getBody().getData().get("usersPage"));
+            verify(userService, times(1)).getUsers("", 0, 10);
         }
     }
 
