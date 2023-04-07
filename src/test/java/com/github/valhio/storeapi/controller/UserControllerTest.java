@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -150,6 +151,29 @@ class UserControllerTest {
 
             assertTrue(jwtValid);
             verify(jwtTokenProvider, times(1)).isTokenValid(USER_EMAIL, "test-jwt-token");
+        }
+    }
+
+    @Nested
+    @DisplayName("Find User By Email")
+    class FindUserByEmail {
+
+        @Test
+        void testFindUserByEmail() throws UserNotFoundException {
+            when(userService.findUserByEmail(USER_EMAIL)).thenReturn(user);
+
+            ResponseEntity<HttpResponse> responseEntity = userController.findUserByEmail(USER_EMAIL);
+
+            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertEquals(user, responseEntity.getBody().getData().get("user"));
+            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
+        }
+
+        @Test
+        void testFindUserByEmailShouldThrowIfUserNotFound() throws UserNotFoundException {
+            when(userService.findUserByEmail(USER_EMAIL)).thenThrow(userNotFoundException);
+            assertThrows(UserNotFoundException.class, () -> userController.findUserByEmail(USER_EMAIL));
+            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
         }
     }
 
