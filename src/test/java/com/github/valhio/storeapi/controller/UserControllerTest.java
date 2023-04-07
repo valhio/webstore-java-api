@@ -100,4 +100,40 @@ class UserControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("Login User")
+    class LoginUser {
+
+        @Test
+        void testLoginUser() throws UserNotFoundException {
+            UserPrincipal userPrincipal = new UserPrincipal(user);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Jwt-Token", "test-jwt-token");
+            when(userService.findUserByEmail(USER_EMAIL)).thenReturn(user);
+            when(authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(USER_EMAIL, USER_PASSWORD)))
+                    .thenReturn(new UsernamePasswordAuthenticationToken(userPrincipal, null, Collections.emptyList()));
+            when(jwtTokenProvider.generateJwtToken(ArgumentMatchers.any())).thenReturn("test-jwt-token");
+
+            ResponseEntity<User> responseEntity = userController.login(user);
+
+            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertEquals(user, responseEntity.getBody());
+            assertEquals(headers, responseEntity.getHeaders());
+            assertEquals("test-jwt-token", responseEntity.getHeaders().get("Jwt-Token").get(0));
+            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
+            verify(authenticationManager, times(1)).authenticate(
+                    new UsernamePasswordAuthenticationToken(USER_EMAIL, USER_PASSWORD));
+            verify(jwtTokenProvider, times(1)).generateJwtToken(ArgumentMatchers.any());
+        }
+
+        @Test
+        void testLoginUserShouldThrowIfUserNotFound() throws UserNotFoundException {
+            when(userService.findUserByEmail(USER_EMAIL)).thenThrow(userNotFoundException);
+            assertThrows(UserNotFoundException.class, () -> userController.login(user));
+            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
+        }
+    }
+
+
 }
