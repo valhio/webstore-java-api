@@ -135,5 +135,22 @@ class UserControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("Is JWT Token Valid")
+    class isJwtValid {
+
+        @Test
+        void testIsJwtValid() {
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            when(request.getHeader("Authorization")).thenReturn("Bearer test-jwt-token");
+            when(request.getHeader("Email")).thenReturn(USER_EMAIL);
+            when(jwtTokenProvider.isTokenValid(USER_EMAIL, "test-jwt-token")).thenReturn(true);
+
+            boolean jwtValid = userController.isJwtValid(request);
+
+            assertTrue(jwtValid);
+            verify(jwtTokenProvider, times(1)).isTokenValid(USER_EMAIL, "test-jwt-token");
+        }
+    }
 
 }
