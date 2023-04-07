@@ -2,6 +2,7 @@ package com.github.valhio.storeapi.controller;
 
 import com.github.valhio.storeapi.domain.HttpResponse;
 import com.github.valhio.storeapi.exception.domain.EmailExistException;
+import com.github.valhio.storeapi.exception.domain.EmailNotFoundException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.User;
 import com.github.valhio.storeapi.model.UserPrincipal;
@@ -26,6 +27,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -195,6 +197,38 @@ class UserControllerTest {
             assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
             assertEquals(page, responseEntity.getBody().getData().get("usersPage"));
             verify(userService, times(1)).getUsers("", 0, 10);
+        }
+    }
+
+    @Nested
+    @DisplayName("Update User")
+    class UpdateUser {
+
+        @Test
+        void testUpdateUser() throws UserNotFoundException, EmailExistException, EmailNotFoundException {
+            User newUser = new User();
+            when(userService.update(newUser, USER_EMAIL)).thenReturn(UserControllerTest.this.user);
+
+            ResponseEntity<HttpResponse> responseEntity = userController.update(newUser, USER_EMAIL);
+
+            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertEquals(HttpStatus.OK.value(), responseEntity.getStatusCodeValue());
+            assertEquals(user, responseEntity.getBody().getData().get("user"));
+            verify(userService, times(1)).update(newUser, USER_EMAIL);
+        }
+
+        @Test
+        void testUpdateUserShouldThrowIfUserNotFound() throws UserNotFoundException, EmailExistException {
+            when(userService.update(user,USER_EMAIL)).thenThrow(userNotFoundException);
+            assertThrows(UserNotFoundException.class, () -> userController.update(user,USER_EMAIL));
+            verify(userService, times(1)).update(user,USER_EMAIL);
+        }
+
+        @Test
+        void testUpdateUserShouldThrowIfEmailAlreadyExists() throws UserNotFoundException, EmailExistException {
+            when(userService.update(user, USER_EMAIL)).thenThrow(emailExistException);
+            assertThrows(EmailExistException.class, () -> userController.update(user, USER_EMAIL));
+            verify(userService, times(1)).update(user, USER_EMAIL);
         }
     }
 
