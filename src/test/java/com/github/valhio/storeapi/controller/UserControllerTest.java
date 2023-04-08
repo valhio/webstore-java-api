@@ -12,11 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,20 +26,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
-    private final Long USER_ID = 1L;
+    private final Long USER_ID = 1234L;
     private final String USER_FIRST_NAME = "John";
     private final String USER_LAST_NAME = "Doe";
     private final String USER_EMAIL = "leeroy@jenkins";
@@ -63,6 +68,9 @@ class UserControllerTest {
     private JWTTokenProvider jwtTokenProvider;
     @InjectMocks
     private UserController userController;
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
@@ -219,9 +227,9 @@ class UserControllerTest {
 
         @Test
         void testUpdateUserShouldThrowIfUserNotFound() throws UserNotFoundException, EmailExistException {
-            when(userService.update(user,USER_EMAIL)).thenThrow(userNotFoundException);
-            assertThrows(UserNotFoundException.class, () -> userController.update(user,USER_EMAIL));
-            verify(userService, times(1)).update(user,USER_EMAIL);
+            when(userService.update(user, USER_EMAIL)).thenThrow(userNotFoundException);
+            assertThrows(UserNotFoundException.class, () -> userController.update(user, USER_EMAIL));
+            verify(userService, times(1)).update(user, USER_EMAIL);
         }
 
         @Test
@@ -231,5 +239,32 @@ class UserControllerTest {
             verify(userService, times(1)).update(user, USER_EMAIL);
         }
     }
+
+    @Nested
+    @DisplayName("Delete User")
+    class DeleteUser {
+
+        @Test
+        @DisplayName("Should delete user when user has DELETE authority")
+        @WithMockUser(username = "leeroy@jenkins", authorities = {"DELETE"})
+        void testDeleteUser() throws Exception {
+            doNothing().when(userService).delete(USER_ID);
+            mockMvc.perform(delete("/api/v1/user/delete/{id}", USER_ID))
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("Should throw 401-UNAUTHORIZED AccessDeniedException when user does not have DELETE authority")
+        @WithMockUser(username = "leeroy@jenkins", authorities = {})
+        void testDeleteUserWithoutDeleteAuthority() throws Exception {
+            doNothing().when(userService).delete(USER_ID);
+            mockMvc.perform(delete("/api/v1/user/delete/{id}", USER_ID))
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(0)).delete(any());
+        }
+
+    }
+
 
 }
