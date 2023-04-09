@@ -1,5 +1,6 @@
 package com.github.valhio.storeapi.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.valhio.storeapi.config.SecurityConfiguration;
 import com.github.valhio.storeapi.enumeration.Role;
@@ -9,31 +10,38 @@ import com.github.valhio.storeapi.filter.JWTAccessDeniedHandler;
 import com.github.valhio.storeapi.filter.JWTAuthenticationEntryPoint;
 import com.github.valhio.storeapi.filter.JWTAuthorizationFilter;
 import com.github.valhio.storeapi.model.User;
+import com.github.valhio.storeapi.model.UserPrincipal;
 import com.github.valhio.storeapi.service.UserService;
 import com.github.valhio.storeapi.utility.JWTTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Collections;
+
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import({SecurityConfiguration.class, JWTAuthorizationFilter.class, JWTAccessDeniedHandler.class, JWTAuthenticationEntryPoint.class})
 @WebMvcTest(UserController.class)
@@ -116,40 +124,55 @@ class UserControllerTest {
 
     }
 
-//    @Nested
-//    @DisplayName("Login User")
-//    class LoginUser {
-//
-//        @Test
-//        void testLoginUser() throws UserNotFoundException {
-//            UserPrincipal userPrincipal = new UserPrincipal(user);
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.set("Jwt-Token", "test-jwt-token");
-//            when(userService.findUserByEmail(USER_EMAIL)).thenReturn(user);
-//            when(authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(USER_EMAIL, USER_PASSWORD)))
-//                    .thenReturn(new UsernamePasswordAuthenticationToken(userPrincipal, null, Collections.emptyList()));
-//            when(jwtTokenProvider.generateJwtToken(ArgumentMatchers.any())).thenReturn("test-jwt-token");
-//
-//            ResponseEntity<User> responseEntity = userController.login(user);
-//
-//            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-//            assertEquals(user, responseEntity.getBody());
-//            assertEquals(headers, responseEntity.getHeaders());
-//            assertEquals("test-jwt-token", responseEntity.getHeaders().get("Jwt-Token").get(0));
-//            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
-//            verify(authenticationManager, times(1)).authenticate(
-//                    new UsernamePasswordAuthenticationToken(USER_EMAIL, USER_PASSWORD));
-//            verify(jwtTokenProvider, times(1)).generateJwtToken(ArgumentMatchers.any());
-//        }
-//
-//        @Test
-//        void testLoginUserShouldThrowIfUserNotFound() throws UserNotFoundException {
-//            when(userService.findUserByEmail(USER_EMAIL)).thenThrow(userNotFoundException);
-//            assertThrows(UserNotFoundException.class, () -> userController.login(user));
-//            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
-//        }
-//    }
+    @Nested
+    @DisplayName("Login User")
+    class LoginUser {
+
+        @Test
+        void testLoginUser() throws Exception {
+            UserPrincipal userPrincipal = new UserPrincipal(user);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Jwt-Token", "test-jwt-token");
+            when(userService.findUserByEmail(USER_EMAIL)).thenReturn(user);
+            when(authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(USER_EMAIL, USER_PASSWORD)))
+                    .thenReturn(new UsernamePasswordAuthenticationToken(userPrincipal, null, Collections.emptyList()));
+            when(jwtTokenProvider.generateJwtToken(ArgumentMatchers.any())).thenReturn("test-jwt-token");
+
+
+            mockMvc.perform(post("/api/v1/user/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(header().stringValues("Jwt-Token", "test-jwt-token"))
+                    .andExpect(jsonPath("$.email", is(user.getEmail())))
+                    .andExpect(jsonPath("$.firstName", is(user.getFirstName())))
+                    .andExpect(jsonPath("$.lastName", is(user.getLastName())))
+                    .andExpect(jsonPath("$.role", is(user.getRole().name())))
+                    .andExpect(jsonPath("$.authorities", containsInAnyOrder("READ")))
+                    .andReturn()
+                    .getResponse();
+
+            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
+            verify(authenticationManager, times(1)).authenticate(
+                    new UsernamePasswordAuthenticationToken(USER_EMAIL, USER_PASSWORD));
+            verify(jwtTokenProvider, times(1)).generateJwtToken(ArgumentMatchers.any());
+        }
+
+        @Test
+        void testLoginUserShouldThrowIfUserNotFound() throws Exception {
+            when(userService.findUserByEmail(any())).thenThrow(userNotFoundException);
+
+            mockMvc.perform(post("/api/v1/user/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(user)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.statusCode", is(HttpStatus.NOT_FOUND.value())))
+                    .andExpect(jsonPath("$.message", is("User not found")));
+
+            verify(userService, times(1)).findUserByEmail(any());
+        }
+    }
 //
 //    @Nested
 //    @DisplayName("Is JWT Token Valid")
