@@ -21,32 +21,23 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-//@ExtendWith(SpringExtension.class)
-//@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
-//@SpringBootTest
-//@Import(SecurityConfiguration.class)
 @Import({SecurityConfiguration.class, JWTAuthorizationFilter.class, JWTAccessDeniedHandler.class, JWTAuthenticationEntryPoint.class})
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc()
-//@ExtendWith(SpringExtension.class)
-//@WebAppConfiguration
 class UserControllerTest {
 
     private final Long USER_ID = 1234L;
@@ -91,39 +82,39 @@ class UserControllerTest {
         this.user.setAuthorities(new String[]{"READ"});
     }
 
-//    @Nested
-//    @DisplayName("Register User")
-//    class RegisterUser {
-//
-//        @Test
-//        @WithMockUser(username = "leeroy@jenkins", authorities = {"READ"})
-//        void testRegisterUser() throws Exception {
-//            when(userService.register(any())).thenReturn(user);
-//            String json = objectMapper.writeValueAsString(user);
-//            mockMvc.perform(post("/api/v1/user/register").content(json).contentType("application/json"))
-//                    .andExpect(status().isOk())
-//                    .andExpect(jsonPath("$.data.user.email", is(user.getEmail())))
-//                    .andExpect(jsonPath("$.data.user.firstName", is(user.getFirstName())))
-//                    .andExpect(jsonPath("$.data.user.lastName", is(user.getLastName())))
-//                    .andExpect(jsonPath("$.data.user.role", is(user.getRole().name())))
-//                    .andExpect(jsonPath("$.data.user.authorities", containsInAnyOrder("READ")));
-//            verify(userService, times(1)).register(any());
-//        }
-//
-//        @Test
-//        void testRegisterUserShouldThrowIfEmailAlreadyExists() throws Exception {
-//            when(userService.register(any())).thenThrow(emailExistException);
-//            String json = objectMapper.writeValueAsString(user);
-//
-//            mockMvc.perform(post("/api/v1/user/register").content(json).contentType("application/json"))
-//                    .andExpect(status().isBadRequest())
-//                    .andExpect(jsonPath("$.statusCode", is(HttpStatus.BAD_REQUEST.value())))
-//                    .andExpect(jsonPath("$.message", is("Email already exists")));
-//
-//            verify(userService, times(1)).register(any());
-//        }
-//
-//    }
+    @Nested
+    @DisplayName("Register User")
+    class RegisterUser {
+
+        @Test
+        @WithMockUser(username = "leeroy@jenkins", authorities = {"READ"})
+        void testRegisterUser() throws Exception {
+            when(userService.register(any())).thenReturn(user);
+            String json = objectMapper.writeValueAsString(user);
+            mockMvc.perform(post("/api/v1/user/register").content(json).contentType("application/json"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.user.email", is(user.getEmail())))
+                    .andExpect(jsonPath("$.data.user.firstName", is(user.getFirstName())))
+                    .andExpect(jsonPath("$.data.user.lastName", is(user.getLastName())))
+                    .andExpect(jsonPath("$.data.user.role", is(user.getRole().name())))
+                    .andExpect(jsonPath("$.data.user.authorities", containsInAnyOrder("READ")));
+            verify(userService, times(1)).register(any());
+        }
+
+        @Test
+        void testRegisterUserShouldThrowIfEmailAlreadyExists() throws Exception {
+            when(userService.register(any())).thenThrow(emailExistException);
+            String json = objectMapper.writeValueAsString(user);
+
+            mockMvc.perform(post("/api/v1/user/register").content(json).contentType("application/json"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.statusCode", is(HttpStatus.BAD_REQUEST.value())))
+                    .andExpect(jsonPath("$.message", is("Email already exists")));
+
+            verify(userService, times(1)).register(any());
+        }
+
+    }
 
 //    @Nested
 //    @DisplayName("Login User")
