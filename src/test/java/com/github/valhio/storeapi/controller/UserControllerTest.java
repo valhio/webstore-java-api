@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -26,20 +27,24 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -173,47 +178,72 @@ class UserControllerTest {
             verify(userService, times(1)).findUserByEmail(any());
         }
     }
-//
+
 //    @Nested
 //    @DisplayName("Is JWT Token Valid")
 //    class isJwtValid {
 //
 //        @Test
-//        void testIsJwtValid() {
-//            HttpServletRequest request = mock(HttpServletRequest.class);
-//            when(request.getHeader("Authorization")).thenReturn("Bearer test-jwt-token");
-//            when(request.getHeader("Email")).thenReturn(USER_EMAIL);
-//            when(jwtTokenProvider.isTokenValid(USER_EMAIL, "test-jwt-token")).thenReturn(true);
+//        @WithMockUser(authorities = {"READ"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+//        void testIsJwtValid() throws Exception {
+////            HttpServletRequest request = mock(HttpServletRequest.class);
+////            when(request.getHeader("Authorization")).thenReturn("Bearer test-jwt-token");
+////            when(request.getHeader("Email")).thenReturn(USER_EMAIL);
+//            when(jwtTokenProvider.isTokenValid(any(), any())).thenReturn(true);
 //
-//            boolean jwtValid = userController.isJwtValid(request);
+////            boolean jwtValid = userController.isJwtValid(request)
 //
-//            assertTrue(jwtValid);
-//            verify(jwtTokenProvider, times(1)).isTokenValid(USER_EMAIL, "test-jwt-token");
+//            // Set Authorization header
+//            MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+//            mockHttpServletRequest.addHeader("Authorization","Bearer test-jwt-token");
+//
+//            mockMvc.perform(get("/api/v1/user/isJwtValid")
+//                            .with(request -> {
+//                                request.addHeader("Authorization", "Bearer test-jwt-token");
+//                                return request;
+//                            })
+//                            .contentType(MediaType.APPLICATION_JSON)                        )
+//                    .andExpect(status().isOk())
+//                    .andExpect(jsonPath("$.data", is(true)));
+//
 //        }
 //    }
-//
-//    @Nested
-//    @DisplayName("Find User By Email")
-//    class FindUserByEmail {
-//
-//        @Test
-//        void testFindUserByEmail() throws UserNotFoundException {
-//            when(userService.findUserByEmail(USER_EMAIL)).thenReturn(user);
-//
-//            ResponseEntity<HttpResponse> responseEntity = userController.findUserByEmail(USER_EMAIL);
-//
-//            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-//            assertEquals(user, responseEntity.getBody().getData().get("user"));
-//            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
-//        }
-//
-//        @Test
-//        void testFindUserByEmailShouldThrowIfUserNotFound() throws UserNotFoundException {
-//            when(userService.findUserByEmail(USER_EMAIL)).thenThrow(userNotFoundException);
-//            assertThrows(UserNotFoundException.class, () -> userController.findUserByEmail(USER_EMAIL));
-//            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
-//        }
-//    }
+
+    @Nested
+    @DisplayName("Find User By Email")
+    class FindUserByEmail {
+
+        @Test
+        @WithMockUser(authorities = {"READ"}, username = "leeroy@jenkins")
+        void testFindUserByEmail() throws Exception {
+            when(userService.findUserByEmail(any())).thenReturn(user);
+
+            mockMvc.perform(get("/api/v1/user/email/" + USER_EMAIL)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.user.email", is(user.getEmail())))
+                    .andExpect(jsonPath("$.data.user.firstName", is(user.getFirstName())))
+                    .andExpect(jsonPath("$.data.user.lastName", is(user.getLastName())))
+                    .andExpect(jsonPath("$.data.user.role", is(user.getRole().name())))
+                    .andExpect(jsonPath("$.data.user.authorities", containsInAnyOrder("READ")));
+
+            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
+        }
+
+        @Test
+        @WithMockUser(authorities = {"READ"}, username = "leeroy@jenkins")
+        void testFindUserByEmailShouldThrowIfUserNotFound() throws Exception {
+            when(userService.findUserByEmail(any())).thenThrow(userNotFoundException);
+
+            mockMvc.perform(get("/api/v1/user/email/" + USER_EMAIL)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.statusCode", is(HttpStatus.NOT_FOUND.value())))
+                    .andExpect(jsonPath("$.message", is("User not found")));
+
+            verify(userService, times(1)).findUserByEmail(USER_EMAIL);
+        }
+    }
 //
 //    @Nested
 //    @DisplayName("Fetch all users")
