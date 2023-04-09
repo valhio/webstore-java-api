@@ -1,6 +1,5 @@
 package com.github.valhio.storeapi.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.valhio.storeapi.config.SecurityConfiguration;
 import com.github.valhio.storeapi.enumeration.Role;
@@ -18,34 +17,31 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import({SecurityConfiguration.class, JWTAuthorizationFilter.class, JWTAccessDeniedHandler.class, JWTAuthenticationEntryPoint.class})
@@ -244,23 +240,102 @@ class UserControllerTest {
             verify(userService, times(1)).findUserByEmail(USER_EMAIL);
         }
     }
-//
-//    @Nested
-//    @DisplayName("Fetch all users")
-//    class FetchAllUsers {
-//
-//        @Test
-//        void testFetchAllUsers() {
-//            Page<User> page = new PageImpl<>(List.of(user), PageRequest.of(0, 10), 1);
-//            when(userService.getUsers("", 0, 10)).thenReturn(page);
-//
-//            ResponseEntity<HttpResponse> responseEntity = userController.getUsers(Optional.of(""), Optional.of(0), Optional.of(10));
-//
-//            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-//            assertEquals(page, responseEntity.getBody().getData().get("usersPage"));
-//            verify(userService, times(1)).getUsers("", 0, 10);
-//        }
-//    }
+
+    @Nested
+    @DisplayName("Fetch all users")
+    class FetchAllUsers {
+
+        @Test
+        @WithMockUser(roles = {"HR"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testFetchAllUsersShouldPassWithHRRole() throws Exception {
+            Page<User> page = new PageImpl<>(List.of(user, new User()), PageRequest.of(0, 10), 1);
+            when(userService.getUsers("", 0, 10)).thenReturn(page);
+
+            mockMvc.perform(get("/api/v1/user/list")
+                            .contentType(MediaType.APPLICATION_JSON)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.usersPage.totalElements", is(2)))
+                    .andExpect(jsonPath("$.data.usersPage.content[0].email", is(user.getEmail())))
+                    .andExpect(jsonPath("$.data.usersPage.content[0].firstName", is(user.getFirstName())))
+                    .andExpect(jsonPath("$.data.usersPage.content[0].lastName", is(user.getLastName())))
+                    .andExpect(jsonPath("$.data.usersPage.content[0].role", is(user.getRole().name())))
+                    .andExpect(jsonPath("$.data.usersPage.content[0].authorities", containsInAnyOrder("READ")));
+
+            verify(userService, times(1)).getUsers("", 0, 10);
+        }
+
+        @Test
+        @WithMockUser(roles = {"MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testFetchAllUsersShouldPassWithManagerRole() throws Exception {
+            Page<User> page = new PageImpl<>(List.of(user, new User()), PageRequest.of(0, 10), 1);
+            when(userService.getUsers("", 0, 10)).thenReturn(page);
+
+            mockMvc.perform(get("/api/v1/user/list")
+                            .contentType(MediaType.APPLICATION_JSON)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.usersPage.totalElements", is(2)));
+
+            verify(userService, times(1)).getUsers("", 0, 10);
+        }
+
+        @Test
+        @WithMockUser(roles = {"ADMIN"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testFetchAllUsersShouldPassWithAdminRole() throws Exception {
+            Page<User> page = new PageImpl<>(List.of(user, new User()), PageRequest.of(0, 10), 1);
+            when(userService.getUsers("", 0, 10)).thenReturn(page);
+
+            mockMvc.perform(get("/api/v1/user/list")
+                            .contentType(MediaType.APPLICATION_JSON)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.usersPage.totalElements", is(2)));
+
+            verify(userService, times(1)).getUsers("", 0, 10);
+        }
+
+        @Test
+        @WithMockUser(roles = {"SUPER_ADMIN"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testFetchAllUsersShouldPassWithSuperAdminRole() throws Exception {
+            Page<User> page = new PageImpl<>(List.of(user, new User()), PageRequest.of(0, 10), 1);
+            when(userService.getUsers("", 0, 10)).thenReturn(page);
+
+            mockMvc.perform(get("/api/v1/user/list")
+                            .contentType(MediaType.APPLICATION_JSON)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.usersPage.totalElements", is(2)));
+
+            verify(userService, times(1)).getUsers("", 0, 10);
+        }
+
+        @Test
+        @WithMockUser(roles = {"USER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testFetchAllUsersShouldThrow401UnauthorizedWithUserRole() throws Exception {
+            mockMvc.perform(get("/api/v1/user/list")
+                            .contentType(MediaType.APPLICATION_JSON)
+                    )
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(0)).getUsers("", 0, 10);
+        }
+
+        @Test
+        @WithMockUser(roles = {"GUEST"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testFetchAllUsersShouldThrow401UnauthorizedWithGuestRole() throws Exception {
+            mockMvc.perform(get("/api/v1/user/list").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isUnauthorized());
+            verify(userService, times(0)).getUsers("", 0, 10);
+        }
+
+        @Test
+        void testFetchAllUsersShouldThrow403ForbiddenWhenNotAuthenticated() throws Exception {
+            mockMvc.perform(get("/api/v1/user/list").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden());
+            verify(userService, times(0)).getUsers("", 0, 10);
+        }
+    }
 //
 //    @Nested
 //    @DisplayName("Update User")
