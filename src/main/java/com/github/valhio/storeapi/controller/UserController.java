@@ -88,7 +88,7 @@ public class UserController extends ExceptionHandling {
     }
 
     @GetMapping("/email/{email}")
-    @PreAuthorize("hasAnyRole('ROLE_MANAGER')")
+    @PreAuthorize("!hasAnyRole('ROLE_GUEST')")
     public ResponseEntity<HttpResponse> findUserByEmail(@PathVariable("email") String email) throws UserNotFoundException {
         User user = userService.findUserByEmail(email);
         return ResponseEntity.ok(HttpResponse.builder()
