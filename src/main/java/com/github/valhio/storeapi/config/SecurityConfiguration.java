@@ -3,17 +3,14 @@ package com.github.valhio.storeapi.config;
 import com.github.valhio.storeapi.filter.JWTAccessDeniedHandler;
 import com.github.valhio.storeapi.filter.JWTAuthenticationEntryPoint;
 import com.github.valhio.storeapi.filter.JWTAuthorizationFilter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -25,26 +22,22 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
  *   This class is responsible for configuring the security of the application.
  * */
 @Configuration
-@EnableWebSecurity // This annotation enables the Spring Security module.
-@EnableMethodSecurity() // This annotation is responsible for enabling the use of the @PreAuthorize annotation.
+@EnableWebSecurity() // This annotation enables the Spring Security module.
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
-    private final JWTAuthorizationFilter jwtAuthorizationFilter;
+
     private final JWTAccessDeniedHandler jwtAccessDeniedHandler;
     private final JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final UserDetailsService userDetailsService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JWTAuthorizationFilter jwtAuthorizationFilter;
 
+    // ATTENTION: If updating the dependencies, you will need to add the new additions to the test files' @Import annotation,
+    // where the SecurityConfiguration class is used/imported.
+    // Otherwise, the tests will fail.
     @Autowired
-    public SecurityConfiguration(JWTAuthorizationFilter jwtAuthorizationFilter,
-                                 JWTAccessDeniedHandler jwtAccessDeniedHandler,
-                                 JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                                 @Qualifier("userDetailsService") UserDetailsService userDetailsService,
-                                 BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.jwtAuthorizationFilter = jwtAuthorizationFilter;
+    public SecurityConfiguration(JWTAccessDeniedHandler jwtAccessDeniedHandler, JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint, JWTAuthorizationFilter jwtAuthorizationFilter) {
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-        this.userDetailsService = userDetailsService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtAuthorizationFilter = jwtAuthorizationFilter;
     }
 
     @Bean
