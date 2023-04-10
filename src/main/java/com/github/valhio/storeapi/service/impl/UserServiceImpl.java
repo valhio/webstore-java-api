@@ -2,7 +2,6 @@ package com.github.valhio.storeapi.service.impl;
 
 import com.github.valhio.storeapi.enumeration.Role;
 import com.github.valhio.storeapi.exception.domain.EmailExistException;
-import com.github.valhio.storeapi.exception.domain.EmailNotFoundException;
 import com.github.valhio.storeapi.exception.domain.PasswordNotMatchException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.User;
@@ -21,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,9 +48,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // It is used during the authentication process inside the AuthenticationManager located in the UserController class.
     @Override
     public UserDetails loadUserByUsername(String email) {
-        User user = userRepository.findByEmail(email);
+        // Cannot use the method findUserByEmail() because it throws a UserNotFoundException but loadUserByUsername() can only throw a UsernameNotFoundException.
+        User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
-            log.error("User not found by email: " + email);
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
         validateLoginAttempt(user);
@@ -75,7 +73,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User register(User user) throws EmailExistException, IllegalArgumentException {
-        validateEmail(user.getEmail());
+        validateEmailExists(user.getEmail());
         user.setUserId(UUID.randomUUID().toString().concat("-" + LocalDateTime.now().getNano()));
 //        user.setUserId(UUID.randomUUID().toString().concat("-" + encodeUsername(user.getUsername())));
         user.setPassword(encodePassword(user.getPassword()));
@@ -93,22 +91,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User addNewUser(User user) throws EmailExistException {
-        validateEmail(user.getEmail());
-        user.setUserId(UUID.randomUUID().toString().concat("-" + LocalDateTime.now().getNano()));
-        user.setPassword(encodePassword(user.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
-        user.setAuthorities(user.getRole().getAuthorities());
-        return userRepository.save(user);
-    }
-
-    @Override
-    public User update(User newUser, String originalEmail) throws EmailExistException, IOException, EmailNotFoundException {
+    public User update(User newUser, String originalEmail) throws EmailExistException, UserNotFoundException {
         User userByEmail = this.findUserByEmail(originalEmail);
-        if (userByEmail == null)
-            throw new EmailNotFoundException("User not found with email: " + originalEmail);
 
-        if (!userByEmail.getEmail().equals(newUser.getEmail())) validateEmail(newUser.getEmail());
+        if (!userByEmail.getEmail().equals(newUser.getEmail())) validateEmailExists(newUser.getEmail());
 
         // Map the new user to the old user.
         userByEmail.setFirstName(newUser.getFirstName() == null ? userByEmail.getFirstName() : newUser.getFirstName());
@@ -137,15 +123,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // TODO: Implement valid Reset Password Functionality
     @Override
     public void resetPassword(String email) throws UserNotFoundException {
-        User user = userRepository.findByEmail(email);
+        User user = this.findUserByEmail(email);
         if (user == null) throw new UserNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
         user.setPassword(encodePassword("password"));
         userRepository.save(user);
     }
 
     @Override
-    public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User findUserByEmail(String email) throws UserNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(NO_USER_FOUND_BY_EMAIL + email));
     }
 
     @Override
@@ -155,8 +141,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void updatePassword(String email, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException {
-        User user = userRepository.findByEmail(email);
-        if (user == null) throw new UserNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
+        User user = this.findUserByEmail(email);
         if (!passwordEncoder.matches(currentPassword, user.getPassword()))
             throw new PasswordNotMatchException(INCORRECT_CURRENT_PASSWORD);
         user.setPassword(encodePassword(newPassword));
@@ -164,27 +149,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void updateEmail(String email, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException {
-        User user = userRepository.findByEmail(email);
-        if (user == null) throw new UsernameNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
+    public void updateEmail(String email, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException {
+        User user = this.findUserByEmail(email);
         if (!passwordEncoder.matches(currentPassword, user.getPassword()))
             throw new PasswordNotMatchException(INCORRECT_CURRENT_PASSWORD);
-        validateEmail(newEmail);
+        validateEmailExists(newEmail);
         user.setEmail(newEmail);
         userRepository.save(user);
     }
 
     @Override
-    public Role getUserRole(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) throw new UsernameNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
+    public Role getUserRole(String email) throws UserNotFoundException {
+        User user = this.findUserByEmail(email);
         return user.getRole();
     }
 
     @Override
-    public Set<String> getUserAuthorities(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) throw new UsernameNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
+    public Set<String> getUserAuthorities(String email) throws UserNotFoundException {
+        User user = this.findUserByEmail(email);
         return Arrays.stream(user.getAuthorities()).collect(Collectors.toSet());
     }
 
@@ -193,16 +175,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findAllByRole(Role.valueOf(role.toUpperCase()));
     }
 
-
-    private String encodePassword(String password) {
-        return passwordEncoder.encode(password);
-    }
-
-    private void validateEmail(String email) throws EmailExistException, IllegalArgumentException {
+    @Override
+    public void validateEmailExists(String email) throws EmailExistException, IllegalArgumentException {
         validateString(email);
         if (userRepository.existsByEmail(email)) {
             throw new EmailExistException(EMAIL_ALREADY_EXISTS);
         }
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
     private void validateString(String argument) throws IllegalArgumentException {
