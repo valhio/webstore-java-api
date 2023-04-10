@@ -1,11 +1,9 @@
 package com.github.valhio.storeapi.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.valhio.storeapi.domain.HttpResponse;
 import com.github.valhio.storeapi.enumeration.Role;
 import com.github.valhio.storeapi.exception.ExceptionHandling;
 import com.github.valhio.storeapi.exception.domain.EmailExistException;
-import com.github.valhio.storeapi.exception.domain.EmailNotFoundException;
 import com.github.valhio.storeapi.exception.domain.PasswordNotMatchException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.User;
@@ -18,12 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotBlank;
-import java.io.IOException;
 import java.util.*;
 
 import static com.github.valhio.storeapi.constant.SecurityConstant.JWT_TOKEN_HEADER;
@@ -40,6 +37,12 @@ public class UserController extends ExceptionHandling {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    @GetMapping("/greeting")
+    public String greeting(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+//    public String greeting(@AuthenticationPrincipal(expression = "username") String username) {
+        return "Hello " + userPrincipal.getEmail();
     }
 
     @PostMapping("/api/logout")
@@ -68,7 +71,7 @@ public class UserController extends ExceptionHandling {
 
     // return response entity with jwt header
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User user) {
+    public ResponseEntity<User> login(@RequestBody User user) throws UserNotFoundException {
         authenticate(user.getEmail(), user.getPassword());
         User logged = userService.findUserByEmail(user.getEmail());
         UserPrincipal userPrincipal = new UserPrincipal(logged);
@@ -84,22 +87,9 @@ public class UserController extends ExceptionHandling {
         return jwtTokenProvider.isTokenValid(request.getHeader("Email"), token);
     }
 
-    @PostMapping(path = "/add")
-    public ResponseEntity<HttpResponse> addNewUser(@RequestParam String user) throws EmailExistException, IllegalArgumentException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        User newUser = objectMapper.readValue(user, User.class);
-        User registered = userService.addNewUser(newUser);
-        return ResponseEntity.ok(HttpResponse.builder()
-                .timeStamp(new Date())
-                .data(Map.of("user", registered))
-                .message("User added successfully")
-                .status(HttpStatus.OK)
-                .statusCode(HttpStatus.OK.value())
-                .build());
-    }
-
     @GetMapping("/email/{email}")
-    public ResponseEntity<HttpResponse> findUserByEmail(@PathVariable("email") String email) {
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER')")
+    public ResponseEntity<HttpResponse> findUserByEmail(@PathVariable("email") String email) throws UserNotFoundException {
         User user = userService.findUserByEmail(email);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
@@ -111,6 +101,7 @@ public class UserController extends ExceptionHandling {
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasAnyRole('ROLE_HR','ROLE_MANAGER','ROLE_ADMIN','ROLE_SUPER_ADMIN')")
     public ResponseEntity<HttpResponse> getUsers(@RequestParam Optional<String> keyword,
                                                  @RequestParam Optional<Integer> page,
                                                  @RequestParam Optional<Integer> size) {
@@ -124,8 +115,8 @@ public class UserController extends ExceptionHandling {
     }
 
     @PostMapping("/update/{originalEmail}")
-    @PreAuthorize("hasAnyAuthority('UPDATE')")
-    public ResponseEntity<HttpResponse> update(@RequestBody User user, @PathVariable String originalEmail) throws EmailExistException, IOException, EmailNotFoundException {
+    @PreAuthorize("!hasRole('ROLE_GUEST')")
+    public ResponseEntity<HttpResponse> update(@RequestBody User user, @PathVariable String originalEmail) throws EmailExistException, UserNotFoundException {
 //        ObjectMapper objectMapper = new ObjectMapper();
 //        User newUser = objectMapper.readValue(user, User.class);
         User updated = userService.update(user, originalEmail);
@@ -139,7 +130,7 @@ public class UserController extends ExceptionHandling {
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasAnyAuthority('DELETE')")
+    @PreAuthorize("hasAuthority('DELETE')")
     public ResponseEntity<HttpResponse> delete(@PathVariable("id") Long id) {
         userService.delete(id);
         return ResponseEntity.ok(HttpResponse.builder()
@@ -191,7 +182,7 @@ public class UserController extends ExceptionHandling {
     @PostMapping("/update-email")
     public ResponseEntity<HttpResponse> updateEmail(@RequestParam @NotBlank String username,
                                                     @RequestParam @NotBlank String currentPassword,
-                                                    @RequestParam @NotBlank String newEmail) throws EmailExistException, PasswordNotMatchException {
+                                                    @RequestParam @NotBlank String newEmail) throws EmailExistException, PasswordNotMatchException, UserNotFoundException {
         userService.updateEmail(username, currentPassword, newEmail);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
@@ -202,7 +193,7 @@ public class UserController extends ExceptionHandling {
     }
 
     @GetMapping("/{username}/role")
-    public ResponseEntity<HttpResponse> getUserRole(@PathVariable("username") String username) {
+    public ResponseEntity<HttpResponse> getUserRole(@PathVariable("username") String username) throws UserNotFoundException {
         Role role = userService.getUserRole(username);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
@@ -214,7 +205,7 @@ public class UserController extends ExceptionHandling {
     }
 
     @GetMapping("/{username}/authority")
-    public ResponseEntity<HttpResponse> getUserAuthority(@PathVariable("username") String username) {
+    public ResponseEntity<HttpResponse> getUserAuthority(@PathVariable("username") String username) throws UserNotFoundException {
         Set<String> authorities = userService.getUserAuthorities(username);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
