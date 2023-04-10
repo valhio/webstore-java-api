@@ -342,7 +342,7 @@ class UserControllerTest {
     class UpdateUser {
 
         @Test
-        @WithMockUser(authorities = {"UPDATE","ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        @WithMockUser(authorities = {"UPDATE", "ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
         void testUpdateUserShouldPassWithRoleManagerAndAuthorityUpdate() throws Exception {
             User newUser = new User();
             when(userService.update(any(), any())).thenReturn(UserControllerTest.this.user);
@@ -374,9 +374,9 @@ class UserControllerTest {
 
 
         @Test
-        @WithMockUser(authorities = {"UPDATE","ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        @WithMockUser(authorities = {"UPDATE", "ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
         void testUpdateUserShouldThrowIfUserNotFound() throws Exception {
-            when(userService.update(any(),any())).thenThrow(userNotFoundException);
+            when(userService.update(any(), any())).thenThrow(userNotFoundException);
 
             mockMvc.perform(post("/api/v1/user/update/" + USER_EMAIL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -384,13 +384,13 @@ class UserControllerTest {
                     )
                     .andExpect(status().isNotFound());
 
-            verify(userService, times(1)).update(any(),any());
+            verify(userService, times(1)).update(any(), any());
         }
 
         @Test
-        @WithMockUser(authorities = {"UPDATE","ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        @WithMockUser(authorities = {"UPDATE", "ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
         void testUpdateUserShouldThrowIfEmailAlreadyExists() throws Exception {
-            when(userService.update(any(),any())).thenThrow(emailExistException);
+            when(userService.update(any(), any())).thenThrow(emailExistException);
 
             mockMvc.perform(post("/api/v1/user/update/" + USER_EMAIL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -398,7 +398,7 @@ class UserControllerTest {
                     )
                     .andExpect(status().isBadRequest());
 
-            verify(userService, times(1)).update(any(),any());
+            verify(userService, times(1)).update(any(), any());
         }
     }
 
@@ -429,6 +429,5 @@ class UserControllerTest {
         }
 
     }
-
 
 }
