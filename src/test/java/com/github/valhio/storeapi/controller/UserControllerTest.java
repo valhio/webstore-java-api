@@ -1,5 +1,6 @@
 package com.github.valhio.storeapi.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.valhio.storeapi.config.SecurityConfiguration;
 import com.github.valhio.storeapi.enumeration.Role;
@@ -33,6 +34,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Collections;
 import java.util.List;
@@ -246,7 +248,7 @@ class UserControllerTest {
     class FetchAllUsers {
 
         @Test
-        @WithMockUser(roles = {"HR"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        @WithMockUser(roles = {"HR"},authorities = {"READ"},username = "leeroy@jenkins", value = "leeroy@jenkins")
         void testFetchAllUsersShouldPassWithHRRole() throws Exception {
             Page<User> page = new PageImpl<>(List.of(user, new User()), PageRequest.of(0, 10), 1);
             when(userService.getUsers("", 0, 10)).thenReturn(page);
@@ -336,38 +338,71 @@ class UserControllerTest {
             verify(userService, times(0)).getUsers("", 0, 10);
         }
     }
-//
-//    @Nested
-//    @DisplayName("Update User")
-//    class UpdateUser {
-//
-//        @Test
-//        void testUpdateUser() throws UserNotFoundException, EmailExistException, EmailNotFoundException {
-//            User newUser = new User();
-//            when(userService.update(newUser, USER_EMAIL)).thenReturn(UserControllerTest.this.user);
-//
-//            ResponseEntity<HttpResponse> responseEntity = userController.update(newUser, USER_EMAIL);
-//
-//            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-//            assertEquals(HttpStatus.OK.value(), responseEntity.getStatusCodeValue());
-//            assertEquals(user, responseEntity.getBody().getData().get("user"));
-//            verify(userService, times(1)).update(newUser, USER_EMAIL);
-//        }
-//
-//        @Test
-//        void testUpdateUserShouldThrowIfUserNotFound() throws UserNotFoundException, EmailExistException {
-//            when(userService.update(user, USER_EMAIL)).thenThrow(userNotFoundException);
-//            assertThrows(UserNotFoundException.class, () -> userController.update(user, USER_EMAIL));
-//            verify(userService, times(1)).update(user, USER_EMAIL);
-//        }
-//
-//        @Test
-//        void testUpdateUserShouldThrowIfEmailAlreadyExists() throws UserNotFoundException, EmailExistException {
-//            when(userService.update(user, USER_EMAIL)).thenThrow(emailExistException);
-//            assertThrows(EmailExistException.class, () -> userController.update(user, USER_EMAIL));
-//            verify(userService, times(1)).update(user, USER_EMAIL);
-//        }
-//    }
+
+    @Nested
+    @DisplayName("Update User")
+    class UpdateUser {
+
+        @Test
+        @WithMockUser(authorities = {"UPDATE","ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testUpdateUserShouldPassWithRoleManagerAndAuthorityUpdate() throws Exception {
+            User newUser = new User();
+            when(userService.update(any(), any())).thenReturn(UserControllerTest.this.user);
+
+            mockMvc.perform(post("/api/v1/user/update/" + USER_EMAIL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(newUser))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.user.email", is(user.getEmail())))
+                    .andExpect(jsonPath("$.data.user.firstName", is(user.getFirstName())))
+                    .andExpect(jsonPath("$.data.user.lastName", is(user.getLastName())))
+                    .andExpect(jsonPath("$.data.user.role", is(user.getRole().name())))
+                    .andExpect(jsonPath("$.data.user.authorities", containsInAnyOrder("READ")));
+
+            verify(userService, times(1)).update(any(), any());
+        }
+
+        @Test
+        @WithMockUser(authorities = {"ROLE_GUEST"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testUpdateUserShouldThrow401IfUserHasRoleGuest() throws Exception {
+            mockMvc.perform(post("/api/v1/user/update/" + USER_EMAIL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(new User()))
+                    )
+                    .andExpect(status().isUnauthorized());
+            verify(userService, times(0)).update(any(), any());
+        }
+
+
+        @Test
+        @WithMockUser(authorities = {"UPDATE","ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testUpdateUserShouldThrowIfUserNotFound() throws Exception {
+            when(userService.update(any(),any())).thenThrow(userNotFoundException);
+
+            mockMvc.perform(post("/api/v1/user/update/" + USER_EMAIL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(user))
+                    )
+                    .andExpect(status().isNotFound());
+
+            verify(userService, times(1)).update(any(),any());
+        }
+
+        @Test
+        @WithMockUser(authorities = {"UPDATE","ROLE_MANAGER"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
+        void testUpdateUserShouldThrowIfEmailAlreadyExists() throws Exception {
+            when(userService.update(any(),any())).thenThrow(emailExistException);
+
+            mockMvc.perform(post("/api/v1/user/update/" + USER_EMAIL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(user))
+                    )
+                    .andExpect(status().isBadRequest());
+
+            verify(userService, times(1)).update(any(),any());
+        }
+    }
 
     @Nested
     @DisplayName("Delete User")
