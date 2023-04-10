@@ -58,6 +58,11 @@ public class ExceptionHandling {
 //        return createHttpResponse(BAD_REQUEST, String.format("There is no mapping for this URL %s", e.getRequestURL()));
 //    }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<HttpResponse> userNotFoundException(UserNotFoundException e) {
+        return createHttpResponse(NOT_FOUND, e.getMessage());
+    }
+
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<HttpResponse> productNotFoundException(ProductNotFoundException e) {
         return createHttpResponse(NOT_FOUND, e.getMessage());
