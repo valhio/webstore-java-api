@@ -1,6 +1,5 @@
 package com.github.valhio.storeapi.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.valhio.storeapi.config.SecurityConfiguration;
 import com.github.valhio.storeapi.enumeration.Role;
@@ -34,7 +33,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Collections;
 import java.util.List;
@@ -248,7 +246,7 @@ class UserControllerTest {
     class FetchAllUsers {
 
         @Test
-        @WithMockUser(roles = {"HR"},authorities = {"READ"},username = "leeroy@jenkins", value = "leeroy@jenkins")
+        @WithMockUser(authorities = {"READ", "ROLE_HR"}, username = "leeroy@jenkins", value = "leeroy@jenkins")
         void testFetchAllUsersShouldPassWithHRRole() throws Exception {
             Page<User> page = new PageImpl<>(List.of(user, new User()), PageRequest.of(0, 10), 1);
             when(userService.getUsers("", 0, 10)).thenReturn(page);
