@@ -19,6 +19,7 @@ import com.github.valhio.storeapi.utility.JWTTokenProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -85,12 +86,7 @@ public class OrderController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<Iterable<Order>> getOrdersByUserId(@PathVariable String userId, HttpServletRequest request) throws UserNotFoundException {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (!isAuthorized(authorizationHeader))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
         User byUserId = userService.findUserByUserId(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
-
         String token = authorizationHeader.substring(7);
 
         if (jwtTokenProvider.isSuperAdmin(token)) {
@@ -105,10 +101,6 @@ public class OrderController {
     @GetMapping("/user/email/{email}")
     public ResponseEntity<Iterable<Order>> getOrdersByUserEmail(@PathVariable String email, HttpServletRequest request) throws UserNotFoundException {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (!isAuthorized(authorizationHeader))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
         String token = authorizationHeader.substring(7);
 
         return jwtTokenProvider.getSubject(token).equals(email)
@@ -118,14 +110,10 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('UPDATE')")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id, HttpServletRequest request) throws OrderNotFoundException {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (!isAuthorized(authorizationHeader))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
         String token = authorizationHeader.substring(7);
-
         Order order = orderService.findById(id);
 
         if (jwtTokenProvider.hasRole(token, new Role[]{Role.ROLE_ADMIN, Role.ROLE_SUPER_ADMIN, Role.ROLE_MANAGER}))
@@ -140,26 +128,13 @@ public class OrderController {
     @PutMapping("/{orderId}/status/{status}")
 //    @PreAuthorize("hasAnyAuthority('UPDATE')")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable String orderId, @PathVariable String status, HttpServletRequest request) throws OrderNotFoundException {
-        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (!isAuthorized(authorizationHeader))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
         Order order = orderService.findById(Long.parseLong(orderId));
         order.setOrderStatus(OrderStatus.valueOf(status));
         return ResponseEntity.ok(orderService.updateOrder(order));
     }
 
-    private boolean isAuthorized(String authorizationHeader) {
-        return authorizationHeader != null && authorizationHeader.startsWith("Bearer ");
-    }
-
     @PutMapping("/{orderId}/orderItem/{itemId}/status/{status}")
     public ResponseEntity<Order> updateOrderItemStatus(@PathVariable String orderId, @PathVariable String itemId, @PathVariable String status, HttpServletRequest request) throws OrderNotFoundException {
-        System.out.println("updateOrderItemStatus");
-        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (!isAuthorized(authorizationHeader))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
         Order order = orderService.findById(Long.parseLong(orderId));
         OrderItem orderItem = order.getOrderItems().stream().filter(item -> item.getId().equals(Long.parseLong(itemId))).findFirst().orElse(null);
 
