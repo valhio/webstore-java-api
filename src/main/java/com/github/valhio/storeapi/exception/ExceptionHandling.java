@@ -1,10 +1,7 @@
 package com.github.valhio.storeapi.exception;
 
 import com.github.valhio.storeapi.domain.HttpResponse;
-import com.github.valhio.storeapi.exception.domain.EmailExistException;
-import com.github.valhio.storeapi.exception.domain.OrderNotFoundException;
-import com.github.valhio.storeapi.exception.domain.PasswordNotMatchException;
-import com.github.valhio.storeapi.exception.domain.ProductNotFoundException;
+import com.github.valhio.storeapi.exception.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -58,6 +55,11 @@ public class ExceptionHandling {
 //        return createHttpResponse(BAD_REQUEST, String.format("There is no mapping for this URL %s", e.getRequestURL()));
 //    }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<HttpResponse> userNotFoundException(UserNotFoundException e) {
+        return createHttpResponse(NOT_FOUND, e.getMessage());
+    }
+
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<HttpResponse> productNotFoundException(ProductNotFoundException e) {
         return createHttpResponse(NOT_FOUND, e.getMessage());
@@ -80,7 +82,7 @@ public class ExceptionHandling {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<HttpResponse> accessDeniedException(AccessDeniedException e) {
-        return createHttpResponse(FORBIDDEN, e.getMessage());
+        return createHttpResponse(UNAUTHORIZED, e.getMessage());
     }
 
     @ExceptionHandler(OrderNotFoundException.class)

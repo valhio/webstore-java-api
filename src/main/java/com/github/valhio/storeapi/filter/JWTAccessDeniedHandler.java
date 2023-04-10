@@ -16,7 +16,7 @@ import java.io.OutputStream;
 import static com.github.valhio.storeapi.constant.SecurityConstant.ACCESS_DENIED_MESSAGE;
 
 /**
- * This class is used to return a 403 error code to clients that try to access a protected resource without proper authentication.
+ * This class is used to return a 401 error code to clients that try to access a protected resource without proper authentication.
  * (They do not have the required role).
  */
 @Component
@@ -24,16 +24,16 @@ public class JWTAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        // Create a new HttpResponse object with the 403 status code and the FORBIDDEN_MESSAGE message.
+        // Create a new HttpResponse object with the 401 status code and the ACCESS_DENIED message.
         HttpResponse httpResponse = HttpResponse.builder()
-                .statusCode(403)
+                .statusCode(401)
                 .status(HttpStatus.UNAUTHORIZED)
                 .reason(HttpStatus.UNAUTHORIZED.getReasonPhrase().toUpperCase())
                 .message(ACCESS_DENIED_MESSAGE)
                 .build();
 
         response.setContentType("application/json");
-        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
         // Write the HttpResponse object to the response output stream.
         OutputStream outputStream = response.getOutputStream(); // Get the output stream from the response.

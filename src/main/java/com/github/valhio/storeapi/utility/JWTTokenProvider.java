@@ -48,8 +48,10 @@ public class JWTTokenProvider {
     }
 
     public List<? extends GrantedAuthority> getAuthorities(String token) {
-        String[] claims = getClaimsFromToken(token);
-        return stream(claims).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        String[] claims = this.getClaimsFromToken(token);
+        List<SimpleGrantedAuthority> collect = stream(claims).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        collect.add(new SimpleGrantedAuthority(this.getUserRole(token)));
+        return collect;
     }
 
     public Authentication getAuthentication(String email, List<? extends GrantedAuthority> authorities, HttpServletRequest request) {
@@ -129,4 +131,5 @@ public class JWTTokenProvider {
         // Invalidate the token by setting the expiration date to the current date
         getJWTVerifier().verify(token).getExpiresAt().before(new Date());
     }
+
 }
