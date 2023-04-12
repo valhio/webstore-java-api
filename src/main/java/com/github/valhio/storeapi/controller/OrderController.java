@@ -4,12 +4,10 @@ import com.github.valhio.storeapi.enumeration.OrderItemStatus;
 import com.github.valhio.storeapi.enumeration.OrderStatus;
 import com.github.valhio.storeapi.enumeration.PaymentMethod;
 import com.github.valhio.storeapi.enumeration.Role;
+import com.github.valhio.storeapi.exception.domain.OrderItemNotFoundException;
 import com.github.valhio.storeapi.exception.domain.OrderNotFoundException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
-import com.github.valhio.storeapi.model.Order;
-import com.github.valhio.storeapi.model.OrderItem;
-import com.github.valhio.storeapi.model.Product;
-import com.github.valhio.storeapi.model.User;
+import com.github.valhio.storeapi.model.*;
 import com.github.valhio.storeapi.repository.ProductRepository;
 import com.github.valhio.storeapi.request.OrderItemRequest;
 import com.github.valhio.storeapi.request.OrderRequest;
@@ -20,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +47,7 @@ public class OrderController {
 
     @RequestMapping("/new")
     @ResponseBody
-    public ResponseEntity<Order> newOrder(@RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<Order> newOrder(@RequestBody OrderRequest orderRequest) throws UserNotFoundException {
         Order order = new Order();
         List<OrderItem> orderItems = new ArrayList<>();
         for (OrderItemRequest orderItemRequest : orderRequest.getOrderItems()) {
@@ -80,38 +79,25 @@ public class OrderController {
         order.setTotalAmount(orderRequest.getTotalAmount());
         order.setOrderStatus(OrderStatus.ORDER_PLACED);
         order.setOrderDate(LocalDateTime.now());
-        return ResponseEntity.ok(orderService.createOrder(order, orderRequest.getUserId()));
+        Order newOrder = orderService.createOrder(order, orderRequest.getUserId());
+        return ResponseEntity.ok(newOrder);
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Iterable<Order>> getOrdersByUserId(@PathVariable String userId, HttpServletRequest request) throws UserNotFoundException {
-        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        User byUserId = userService.findUserByUserId(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
-        String token = authorizationHeader.substring(7);
-
-        if (jwtTokenProvider.isSuperAdmin(token)) {
-            return ResponseEntity.ok(orderService.findAllByUser(byUserId));
-        } else {
-            return jwtTokenProvider.getSubject(token).equals(byUserId.getEmail())
-                    ? ResponseEntity.ok(orderService.findAllByUser(byUserId))
-                    : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    @PreAuthorize("#auth.userId == #userId or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
+    public ResponseEntity<Iterable<Order>> getOrdersByUserId(@AuthenticationPrincipal UserPrincipal auth, @PathVariable String userId, HttpServletRequest request) throws UserNotFoundException {
+        User byUserId = userService.findUserByUserId(userId);
+        return ResponseEntity.ok(orderService.findAllByUserId(byUserId.getUserId()));
     }
 
     @GetMapping("/user/email/{email}")
-    public ResponseEntity<Iterable<Order>> getOrdersByUserEmail(@PathVariable String email, HttpServletRequest request) throws UserNotFoundException {
-        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String token = authorizationHeader.substring(7);
-
-        return jwtTokenProvider.getSubject(token).equals(email)
-                ? ResponseEntity.ok(orderService.findAllByEmail(email))
-                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
+    @PreAuthorize("#auth.email == #email or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
+    public ResponseEntity<Iterable<Order>> getOrdersByUserEmail(@AuthenticationPrincipal UserPrincipal auth, @PathVariable String email, HttpServletRequest request) {
+        return ResponseEntity.ok(orderService.findAllByEmail(email));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('UPDATE')")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id, HttpServletRequest request) throws OrderNotFoundException {
+    public ResponseEntity<Order> getOrderById(@AuthenticationPrincipal UserPrincipal auth, @PathVariable Long id, HttpServletRequest request) throws OrderNotFoundException {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = authorizationHeader.substring(7);
         Order order = orderService.findById(id);
@@ -126,7 +112,7 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/status/{status}")
-//    @PreAuthorize("hasAnyAuthority('UPDATE')")
+    @PreAuthorize("hasAnyAuthority('UPDATE') or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable String orderId, @PathVariable String status, HttpServletRequest request) throws OrderNotFoundException {
         Order order = orderService.findById(Long.parseLong(orderId));
         order.setOrderStatus(OrderStatus.valueOf(status));
@@ -134,15 +120,17 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/orderItem/{itemId}/status/{status}")
-    public ResponseEntity<Order> updateOrderItemStatus(@PathVariable String orderId, @PathVariable String itemId, @PathVariable String status, HttpServletRequest request) throws OrderNotFoundException {
+    @PreAuthorize("hasAnyAuthority('UPDATE') or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
+    public ResponseEntity<Order> updateOrderItemStatus(@PathVariable String orderId, @PathVariable String itemId, @PathVariable String status, HttpServletRequest request) throws OrderNotFoundException, OrderItemNotFoundException {
         Order order = orderService.findById(Long.parseLong(orderId));
-        OrderItem orderItem = order.getOrderItems().stream().filter(item -> item.getId().equals(Long.parseLong(itemId))).findFirst().orElse(null);
-
-        if (orderItem == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        OrderItem orderItem = order.getOrderItems()
+                .stream()
+                .filter(item -> item.getId().equals(Long.parseLong(itemId)))
+                .findFirst()
+                .orElseThrow(() -> new OrderItemNotFoundException("Order item not found"));
 
         orderItem.setStatus(OrderItemStatus.valueOf(status));
         return ResponseEntity.ok(orderService.updateOrder(order));
     }
-
 
 }
