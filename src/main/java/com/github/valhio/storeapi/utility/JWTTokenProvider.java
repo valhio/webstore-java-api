@@ -43,6 +43,7 @@ public class JWTTokenProvider {
                 .withArrayClaim(AUTHORITIES, claims) // What are the claims of the token, in this case, the authorities
                 .withClaim("role", userPrincipal.getRole().name())
                 .withClaim("email", userPrincipal.getEmail())
+                .withClaim("userId", userPrincipal.getUserId())
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // When does the token expire
                 .sign(Algorithm.HMAC512(secretKey.getBytes())); // What is the secret key used to sign the token
     }
