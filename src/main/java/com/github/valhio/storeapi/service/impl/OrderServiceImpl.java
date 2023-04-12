@@ -2,8 +2,8 @@ package com.github.valhio.storeapi.service.impl;
 
 import com.github.valhio.storeapi.exception.domain.OrderNotFoundException;
 import com.github.valhio.storeapi.exception.domain.ProductNotFoundException;
+import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.Order;
-import com.github.valhio.storeapi.model.OrderItem;
 import com.github.valhio.storeapi.model.User;
 import com.github.valhio.storeapi.repository.OrderRepository;
 import com.github.valhio.storeapi.service.OrderService;
@@ -27,9 +27,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order createOrder(Order order, String userId) {
+    public Order createOrder(Order order, String userId) throws UserNotFoundException {
         if (userId != null) {
-            userService.findUserByUserId(userId).ifPresent(order::setUser);
+            order.setUser(userService.findUserByUserId(userId));
         }
 
         // Remove quantity from product

@@ -8,7 +8,6 @@ import com.github.valhio.storeapi.model.User;
 import org.springframework.data.domain.Page;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 
 public interface UserService {
@@ -16,7 +15,7 @@ public interface UserService {
 
     User findUserByEmail(String email) throws UserNotFoundException;
 
-    Optional<User> findUserByUserId(String id);
+    User findUserByUserId(String id) throws UserNotFoundException;
 
     Page<User> getUsers(String keyword, int page, int size);
 
