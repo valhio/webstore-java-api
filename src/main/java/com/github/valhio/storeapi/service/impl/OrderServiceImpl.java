@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Iterable<Order> findAllByUserId(String userId) {
-        return repository.findAllByUserId(userId);
+        return repository.findAllByUserIdOrderByOrderDateDesc(userId);
     }
 
     @Override
