@@ -47,7 +47,7 @@ public class JWTTokenProvider {
                 .sign(Algorithm.HMAC512(secretKey.getBytes())); // What is the secret key used to sign the token
     }
 
-    public List<? extends GrantedAuthority> getAuthorities(String token) {
+    public List<SimpleGrantedAuthority> getAuthorities(String token) {
         String[] claims = this.getClaimsFromToken(token);
         List<SimpleGrantedAuthority> collect = stream(claims).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
         collect.add(new SimpleGrantedAuthority(this.getUserRole(token)));
