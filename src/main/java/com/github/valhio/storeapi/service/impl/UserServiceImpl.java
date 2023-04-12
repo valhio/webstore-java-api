@@ -21,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.github.valhio.storeapi.constant.UserImplConstant.*;
@@ -165,9 +168,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Set<String> getUserAuthorities(String email) throws UserNotFoundException {
+    public Collection<String> getUserAuthorities(String email) throws UserNotFoundException {
         User user = this.findUserByEmail(email);
-        return Arrays.stream(user.getAuthorities()).collect(Collectors.toSet());
+        return Arrays.stream(user.getAuthorities()).collect(Collectors.toList());
     }
 
     @Override
