@@ -128,4 +128,147 @@ class OrderControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("Get orders by userId")
+    class GetOrdersByUserId {
+
+        @Test
+        @DisplayName("Should return 200 if authenticated user's userId is the same as the one in the request (the path variable)")
+        void shouldReturn200WhenUserIdMatchesRequestUserId() throws Exception {
+            User user = new User();
+            user.setUserId("1");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+            // When
+            when(userService.findUserByUserId(any())).thenReturn(user);
+            when(orderService.findAllByUserId(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/1")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id", is(1)));
+
+            verify(userService, times(1)).findUserByUserId(any());
+            verify(orderService, times(1)).findAllByUserId(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if the user is authorized with role ADMIN")
+        void shouldReturn200WhenUserHasRoleAdmin() throws Exception {
+            User user = new User();
+            user.setUserId("12345678");
+            user.setRole(Role.ROLE_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(userService.findUserByUserId(any())).thenReturn(user);
+            when(orderService.findAllByUserId(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/1")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id", is(1)));
+
+
+            verify(userService, times(1)).findUserByUserId(any());
+            verify(orderService, times(1)).findAllByUserId(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if the user is authorized with role MANAGER")
+        void shouldReturn200WhenUserHasRoleManager() throws Exception {
+            User user = new User();
+            user.setUserId("12345678");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(userService.findUserByUserId(any())).thenReturn(user);
+            when(orderService.findAllByUserId(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/1")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id", is(1)));
+
+
+            verify(userService, times(1)).findUserByUserId(any());
+            verify(orderService, times(1)).findAllByUserId(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if the user is authorized with role SUPER_ADMIN")
+        void shouldReturn200WhenUserHasRoleSuperAdmin() throws Exception {
+            User user = new User();
+            user.setUserId("12345678");
+            user.setRole(Role.ROLE_SUPER_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(userService.findUserByUserId(any())).thenReturn(user);
+            when(orderService.findAllByUserId(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/1")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id", is(1)));
+
+
+            verify(userService, times(1)).findUserByUserId(any());
+            verify(orderService, times(1)).findAllByUserId(any());
+        }
+
+
+        @Test
+        @DisplayName("Should throw 401 Unauthorized when authenticated user's userId does not match the userId path variable")
+        void shouldThrow401WhenUserIdPathVarDoesNotMatchAuthUserID() throws Exception {
+            User user = new User();
+            user.setUserId("12345678");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(userService.findUserByUserId(any())).thenReturn(user);
+            when(orderService.findAllByUserId(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/1")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(0)).findUserByUserId(any());
+            verify(orderService, times(0)).findAllByUserId(any());
+        }
+
+        @Test
+        @DisplayName("Should throw 401 Unauthorized when authenticated user's userId does not match the userId path variable and user has role of USER")
+        void shouldThrow401WhenUserIdPathVarDoesNotMatchAuthUserIdAndRoleIsUser() throws Exception {
+            User user = new User();
+            user.setUserId("12345678");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(userService.findUserByUserId(any())).thenReturn(user);
+            when(orderService.findAllByUserId(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/1")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(0)).findUserByUserId(any());
+            verify(orderService, times(0)).findAllByUserId(any());
+        }
+
+    }
+
 }
