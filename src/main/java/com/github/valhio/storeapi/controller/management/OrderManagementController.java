@@ -56,7 +56,7 @@ public class OrderManagementController {
         if (!isAuthorized(authorizationHeader))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        User byUserId = userService.findUserByUserId(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+        User byUserId = userService.findUserByUserId(userId);
 
         String token = authorizationHeader.substring(7);
 
