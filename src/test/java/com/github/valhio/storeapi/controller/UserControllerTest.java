@@ -30,7 +30,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -484,7 +483,7 @@ class UserControllerTest {
         @Test
         @DisplayName("Should update password when user has role ADMIN")
 //        @WithMockUser(roles = {"ADMIN"})
-        void shouldResetPasswordWhenUserHasAdminRole() throws Exception {
+        void shouldUpdatePasswordWhenUserHasAdminRole() throws Exception {
             User user = new User();
             user.setEmail("leeroy@jenkins");
             user.setRole(Role.ROLE_ADMIN);
@@ -504,7 +503,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Should update password when user has role MANAGER")
-        void shouldResetPasswordWhenUserHasManagerRole() throws Exception {
+        void shouldUpdatePasswordWhenUserHasManagerRole() throws Exception {
             User user = new User();
             user.setEmail("leeroy@jenkins");
             user.setRole(Role.ROLE_MANAGER);
@@ -524,7 +523,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Should update password when user has role SUPER_ADMIN")
-        void shouldResetPasswordWhenUserHasSuperAdminRole() throws Exception {
+        void shouldUpdatePasswordWhenUserHasSuperAdminRole() throws Exception {
             User user = new User();
             user.setEmail("leeroy@jenkins");
             user.setRole(Role.ROLE_SUPER_ADMIN);
@@ -543,7 +542,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Should update password when authenticated user's email matches path variable email")
-        void shouldResetPasswordWhenUserEmailMatchesRequestEmail() throws Exception {
+        void shouldUpdatePasswordWhenUserEmailMatchesRequestEmail() throws Exception {
             User user = new User();
             user.setEmail("leeroy@jenkins");
             user.setRole(Role.ROLE_USER);
