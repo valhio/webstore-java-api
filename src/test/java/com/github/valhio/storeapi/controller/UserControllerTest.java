@@ -456,4 +456,53 @@ class UserControllerTest {
             verify(userService, times(1)).deleteByUserId(any());
         }
     }
+
+    @Nested
+    @DisplayName("Reset Password")
+    class ResetPassword {
+
+        @Test
+        @DisplayName("Should reset password when user has role ADMIN")
+        @WithMockUser(roles = {"ADMIN"})
+        void shouldResetPasswordWhenUserHasAdminRole() throws Exception {
+            doNothing().when(userService).resetPassword(any());
+            mockMvc.perform(post("/api/v1/user/reset-password/{email}", "leeroy@jenkins"))
+                    .andExpect(status().isOk());
+
+            verify(userService, times(1)).resetPassword(any());
+        }
+
+        @Test
+        @DisplayName("Should reset password when user has role MANAGER")
+        @WithMockUser(roles = {"MANAGER"})
+        void shouldResetPasswordWhenUserHasManagerRole() throws Exception {
+            doNothing().when(userService).resetPassword(any());
+            mockMvc.perform(post("/api/v1/user/reset-password/{email}", "leeroy@jenkins"))
+                    .andExpect(status().isOk());
+
+            verify(userService, times(1)).resetPassword(any());
+        }
+
+        @Test
+        @DisplayName("Should reset password when user has role SUPER_ADMIN")
+        @WithMockUser(roles = {"SUPER_ADMIN"})
+        void shouldResetPasswordWhenUserHasSuperAdminRole() throws Exception {
+            doNothing().when(userService).resetPassword(any());
+            mockMvc.perform(post("/api/v1/user/reset-password/{email}", "leeroy@jenkins"))
+                    .andExpect(status().isOk());
+
+            verify(userService, times(1)).resetPassword(any());
+        }
+
+        @Test
+        @DisplayName("Should throw 401 Unauthorized when user does not have authorized role")
+        @WithMockUser(roles = {"USER"})
+        void shouldThrowWhenUserDoesNotHaveUpdateAuthority() throws Exception {
+            doNothing().when(userService).resetPassword(any());
+            mockMvc.perform(post("/api/v1/user/reset-password/{email}", "leeroy@jenkins"))
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(0)).resetPassword(any());
+        }
+    }
 }
