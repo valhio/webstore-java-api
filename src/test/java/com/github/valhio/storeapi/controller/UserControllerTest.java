@@ -148,7 +148,7 @@ class UserControllerTest {
                     .andExpect(jsonPath("$.email", is(user.getEmail())))
                     .andExpect(jsonPath("$.firstName", is(user.getFirstName())))
                     .andExpect(jsonPath("$.lastName", is(user.getLastName())))
-                    .andExpect(jsonPath("$.role", is(user.getRole().name())))
+                    .andExpect(jsonPath("$.data.role", is(user.getRole().name())))
                     .andExpect(jsonPath("$.authorities", containsInAnyOrder("READ")))
                     .andReturn()
                     .getResponse();
@@ -685,4 +685,102 @@ class UserControllerTest {
             verify(userService, times(0)).updateEmail(any(), any(), any());
         }
     }
+
+    @Nested
+    @DisplayName("Get user Role")
+    class GetUserRole {
+
+        @Test
+        @DisplayName("Should return user role when user has role ADMIN")
+        void shouldReturnUserRoleWhenUserHasAdminRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
+
+            mockMvc.perform(get("/api/v1/user/{email}/role", "emailThatDoesNotMatch")
+                            .param("email", "emailThatDoesNotMatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.role", is("ROLE_HR")));
+
+            verify(userService, times(1)).getUserRole(any());
+        }
+
+        @Test
+        @DisplayName("Should return user role when user has role MANAGER")
+        void shouldReturnUserRoleWhenUserHasManagerRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
+
+            mockMvc.perform(get("/api/v1/user/{email}/role", "emailThatDoesNotMatch")
+                            .param("email", "emailThatDoesNotMatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.role", is("ROLE_HR")));
+
+            verify(userService, times(1)).getUserRole(any());
+        }
+
+        @Test
+        @DisplayName("Should return user role when user has role SUPER_ADMIN")
+        void shouldReturnUserRoleWhenUserHasSuperAdminRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_SUPER_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
+            mockMvc.perform(get("/api/v1/user/{email}/role", "emailThatDoesNotMatch")
+                            .param("email", "emailThatDoesNotMatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.role", is("ROLE_HR")));
+
+            verify(userService, times(1)).getUserRole(any());
+        }
+
+        @Test
+        @DisplayName("Should return user role when authenticated user's email matches path variable email")
+        void shouldReturnUserRoleWhenUserEmailMatchesRequestEmail() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
+            mockMvc.perform(get("/api/v1/user/{email}/role", user.getEmail())
+                            .param("email", user.getEmail())
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.role", is("ROLE_HR")));
+
+            verify(userService, times(1)).getUserRole(any());
+        }
+
+        @Test
+        @DisplayName("Should throw 401 Unauthorized when user does not have authorized role and email does not match")
+        void shouldThrow401IfUserDoesNotHaveAuthorizedRoleAndUserEmailDoesNotMatchRequestEmail() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
+
+            mockMvc.perform(get("/api/v1/user/{email}/role", "someEmailThatDoesNotMatch")
+                            .param("email", user.getEmail())
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(0)).getUserRole(any());
+        }
+    }
+
 }
