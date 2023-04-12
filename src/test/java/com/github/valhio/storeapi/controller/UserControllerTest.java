@@ -33,8 +33,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
@@ -780,6 +779,98 @@ class UserControllerTest {
                     .andExpect(status().isUnauthorized());
 
             verify(userService, times(0)).getUserRole(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Get user Authorities")
+    class GetUserAuthorities {
+
+        @Test
+        @DisplayName("Should return user authorities when user has authorities ADMIN")
+        void shouldReturnUserAuthoritiesWhenUserHasAdminRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserAuthorities(any())).thenReturn(List.of("READ"));
+
+            mockMvc.perform(get("/api/v1/user/{email}/authorities", "emailThatDoesNotMatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.authorities[0]", is("READ")));
+
+            verify(userService, times(1)).getUserAuthorities(any());
+        }
+
+        @Test
+        @DisplayName("Should return user authorities when user has authorities MANAGER")
+        void shouldReturnUserAuthoritiesWhenUserHasManagerRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserAuthorities(any())).thenReturn(List.of("READ"));
+
+            mockMvc.perform(get("/api/v1/user/{email}/authorities", "emailThatDoesNotMatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.authorities[0]", is("READ")));
+
+            verify(userService, times(1)).getUserAuthorities(any());
+        }
+
+        @Test
+        @DisplayName("Should return user authorities when user has authorities SUPER_ADMIN")
+        void shouldReturnUserAuthoritiesWhenUserHasSuperAdminRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_SUPER_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserAuthorities(any())).thenReturn(List.of("READ"));
+            mockMvc.perform(get("/api/v1/user/{email}/authorities", "emailThatDoesNotMatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.authorities[0]", is("READ")));
+
+            verify(userService, times(1)).getUserAuthorities(any());
+        }
+
+        @Test
+        @DisplayName("Should return user authorities when authenticated user's email matches path variable email")
+        void shouldReturnUserAuthoritiesWhenUserEmailMatchesRequestEmail() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserAuthorities(any())).thenReturn(List.of("READ"));
+            mockMvc.perform(get("/api/v1/user/{email}/authorities", user.getEmail())
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.authorities[0]", is("READ")));
+
+            verify(userService, times(1)).getUserAuthorities(any());
+        }
+
+        @Test
+        @DisplayName("Should throw 401 Unauthorized when user does not have authorized authorities and email does not match")
+        void shouldThrow401IfUserDoesNotHaveAuthorizedRoleAndUserEmailDoesNotMatchRequestEmail() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.getUserAuthorities(any())).thenReturn(List.of("READ"));
+
+            mockMvc.perform(get("/api/v1/user/{email}/authorities", "someEmailThatDoesNotMatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(0)).getUserAuthorities(any());
         }
     }
 
