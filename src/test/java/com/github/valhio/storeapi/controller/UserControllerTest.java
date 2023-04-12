@@ -33,7 +33,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
@@ -147,7 +148,7 @@ class UserControllerTest {
                     .andExpect(jsonPath("$.email", is(user.getEmail())))
                     .andExpect(jsonPath("$.firstName", is(user.getFirstName())))
                     .andExpect(jsonPath("$.lastName", is(user.getLastName())))
-                    .andExpect(jsonPath("$.data.role", is(user.getRole().name())))
+                    .andExpect(jsonPath("$.role", is(user.getRole().name())))
                     .andExpect(jsonPath("$.authorities", containsInAnyOrder("READ")))
                     .andReturn()
                     .getResponse();
@@ -700,7 +701,6 @@ class UserControllerTest {
             when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
 
             mockMvc.perform(get("/api/v1/user/{email}/role", "emailThatDoesNotMatch")
-                            .param("email", "emailThatDoesNotMatch")
                             .with(user(authenticatedUser)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.role", is("ROLE_HR")));
@@ -719,7 +719,6 @@ class UserControllerTest {
             when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
 
             mockMvc.perform(get("/api/v1/user/{email}/role", "emailThatDoesNotMatch")
-                            .param("email", "emailThatDoesNotMatch")
                             .with(user(authenticatedUser)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.role", is("ROLE_HR")));
@@ -737,7 +736,6 @@ class UserControllerTest {
 
             when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
             mockMvc.perform(get("/api/v1/user/{email}/role", "emailThatDoesNotMatch")
-                            .param("email", "emailThatDoesNotMatch")
                             .with(user(authenticatedUser)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.role", is("ROLE_HR")));
@@ -755,7 +753,6 @@ class UserControllerTest {
 
             when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
             mockMvc.perform(get("/api/v1/user/{email}/role", user.getEmail())
-                            .param("email", user.getEmail())
                             .with(user(authenticatedUser)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.role", is("ROLE_HR")));
@@ -774,7 +771,6 @@ class UserControllerTest {
             when(userService.getUserRole(any())).thenReturn(Role.ROLE_HR);
 
             mockMvc.perform(get("/api/v1/user/{email}/role", "someEmailThatDoesNotMatch")
-                            .param("email", user.getEmail())
                             .with(user(authenticatedUser)))
                     .andExpect(status().isUnauthorized());
 
