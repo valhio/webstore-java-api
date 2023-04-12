@@ -8,7 +8,6 @@ import com.github.valhio.storeapi.model.User;
 import org.springframework.data.domain.Page;
 
 import java.util.Collection;
-import java.util.Set;
 
 public interface UserService {
     User register(User user) throws EmailExistException, IllegalArgumentException;
@@ -35,7 +34,7 @@ public interface UserService {
 
     Collection<User> getUsersByRole(String role);
 
-    Set<String> getUserAuthorities(String username) throws UserNotFoundException;
+    Collection<String> getUserAuthorities(String username) throws UserNotFoundException;
 
     void validateEmailExists(String email) throws EmailExistException;
 

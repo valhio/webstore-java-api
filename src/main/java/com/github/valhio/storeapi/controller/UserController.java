@@ -21,7 +21,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotBlank;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.github.valhio.storeapi.constant.SecurityConstant.JWT_TOKEN_HEADER;
 
@@ -141,20 +144,9 @@ public class UserController extends ExceptionHandling {
                 .build());
     }
 
-    @DeleteMapping("/delete/userId/{userId}")
-    @PreAuthorize("hasAnyAuthority('DELETE')")
-    public ResponseEntity<HttpResponse> deleteByUserId(@PathVariable("userId") String userId) {
-        userService.deleteByUserId(userId);
-        return ResponseEntity.ok(HttpResponse.builder()
-                .timeStamp(new Date())
-                .message("User deleted successfully")
-                .status(HttpStatus.OK)
-                .statusCode(HttpStatus.OK.value())
-                .build());
-    }
-
     // TODO: Implement valid Reset Password Functionality
-    @GetMapping("/reset-password/{email}")
+    @PostMapping("/reset-password/{email}")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_SUPER_ADMIN')")
     public ResponseEntity<HttpResponse> resetPassword(@PathVariable("email") String email) throws UserNotFoundException {
         userService.resetPassword(email);
         return ResponseEntity.ok(HttpResponse.builder()
@@ -167,10 +159,12 @@ public class UserController extends ExceptionHandling {
     }
 
     @PostMapping("/update-password")
-    public ResponseEntity<HttpResponse> updatePassword(@RequestParam @NotBlank String username,
+    @PreAuthorize("#userPrincipal.email == #email or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_SUPER_ADMIN')")
+    public ResponseEntity<HttpResponse> updatePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                       @RequestParam @NotBlank String email,
                                                        @RequestParam @NotBlank String currentPassword,
                                                        @RequestParam @NotBlank String newPassword) throws PasswordNotMatchException, UserNotFoundException {
-        userService.updatePassword(username, currentPassword, newPassword);
+        userService.updatePassword(email, currentPassword, newPassword);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
                 .message("Password updated successfully")
@@ -180,10 +174,12 @@ public class UserController extends ExceptionHandling {
     }
 
     @PostMapping("/update-email")
-    public ResponseEntity<HttpResponse> updateEmail(@RequestParam @NotBlank String username,
+    @PreAuthorize("#userPrincipal.email == #email or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_SUPER_ADMIN')")
+    public ResponseEntity<HttpResponse> updateEmail(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                    @RequestParam @NotBlank String email,
                                                     @RequestParam @NotBlank String currentPassword,
                                                     @RequestParam @NotBlank String newEmail) throws EmailExistException, PasswordNotMatchException, UserNotFoundException {
-        userService.updateEmail(username, currentPassword, newEmail);
+        userService.updateEmail(email, currentPassword, newEmail);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
                 .message("Email updated successfully")
@@ -192,9 +188,10 @@ public class UserController extends ExceptionHandling {
                 .build());
     }
 
-    @GetMapping("/{username}/role")
-    public ResponseEntity<HttpResponse> getUserRole(@PathVariable("username") String username) throws UserNotFoundException {
-        Role role = userService.getUserRole(username);
+    @GetMapping("/{email}/role")
+    @PreAuthorize("#userPrincipal.email == #email or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_SUPER_ADMIN')")
+    public ResponseEntity<HttpResponse> getUserRole(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable("email") String email) throws UserNotFoundException {
+        Role role = userService.getUserRole(email);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
                 .data(Map.of("role", role))
@@ -204,25 +201,14 @@ public class UserController extends ExceptionHandling {
                 .build());
     }
 
-    @GetMapping("/{username}/authority")
-    public ResponseEntity<HttpResponse> getUserAuthority(@PathVariable("username") String username) throws UserNotFoundException {
-        Set<String> authorities = userService.getUserAuthorities(username);
+    @GetMapping("/{email}/authorities")
+    @PreAuthorize("#userPrincipal.email == #email or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_SUPER_ADMIN')")
+    public ResponseEntity<HttpResponse> getUserAuthority(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable("email") String email) throws UserNotFoundException {
+        Collection<String> authorities = userService.getUserAuthorities(email);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
                 .data(Map.of("authorities", authorities))
                 .message("User authorities retrieved successfully")
-                .status(HttpStatus.OK)
-                .statusCode(HttpStatus.OK.value())
-                .build());
-    }
-
-    @GetMapping("/list/role")
-    public ResponseEntity<HttpResponse> getAllUsersByRole(@RequestParam String role) {
-        Collection<User> users = userService.getUsersByRole(role);
-        return ResponseEntity.ok(HttpResponse.builder()
-                .timeStamp(new Date())
-                .data(Map.of("users", users))
-                .message("Users retrieved successfully")
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
                 .build());
