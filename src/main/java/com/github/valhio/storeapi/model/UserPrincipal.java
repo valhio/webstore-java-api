@@ -9,9 +9,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /*
- *   This class is used to represent the user in the application.
+ *   This class is used to represent the user in the application (Spring Security).
  * */
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,10 +28,15 @@ public class UserPrincipal implements UserDetails {
         return user.getEmail();
     }
 
+    public String getUserId() {
+        return user.getUserId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return this.user.getAuthorities().stream().map(SimpleGrantedAuthority::new).toList();
-        return Arrays.stream(this.user.getAuthorities()).map(SimpleGrantedAuthority::new).toList();
+        List<SimpleGrantedAuthority> simpleGrantedAuthorities = Arrays.stream(this.user.getAuthorities()).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        simpleGrantedAuthorities.add(new SimpleGrantedAuthority(this.user.getRole().name())); // Add the user's role to the list of authorities, so that Spring Security can use it to authorize the user to access the endpoints that require that role (Ex. @PreAuthorize("hasRole('ROLE_ADMIN')"))
+        return simpleGrantedAuthorities;
     }
 
     @Override
