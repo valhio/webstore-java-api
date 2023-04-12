@@ -546,4 +546,172 @@ class OrderControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("Update order's order item status")
+    class UpdateOrderItemStatus {
+
+        @Test
+        @DisplayName("Should return 200 if the user has UPDATE authority")
+        void shouldReturn200IfUserHasUpdateAuthority() throws Exception {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setId(1L);
+            orderItem.setStatus(OrderItemStatus.ORDER_PLACED);
+            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderItems(List.of(orderItem));
+
+            User user = new User();
+            user.setAuthorities(new String[]{"UPDATE"});
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.updateOrder(any())).thenReturn(order);
+
+            // Then
+            mockMvc.perform(put("/api/v1/orders/{orderId}/orderItem/{itemId}/status/{status}", 1, 1, "PENDING")
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", is(1)))
+                    .andExpect(jsonPath("$.orderItems[0].status", is("PENDING")));
+
+            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).updateOrder(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if the user has ADMIN role")
+        void shouldReturn200IfUserHasAdminRole() throws Exception {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setId(1L);
+            orderItem.setStatus(OrderItemStatus.ORDER_PLACED);
+            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderItems(List.of(orderItem));
+
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.updateOrder(any())).thenReturn(order);
+
+            // Then
+            mockMvc.perform(put("/api/v1/orders/{orderId}/orderItem/{itemId}/status/{status}", 1, 1, "PENDING")
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", is(1)))
+                    .andExpect(jsonPath("$.orderItems[0].status", is("PENDING")));
+
+            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).updateOrder(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if the user has MANAGER role")
+        void shouldReturn200IfUserHasManagerRole() throws Exception {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setId(1L);
+            orderItem.setStatus(OrderItemStatus.ORDER_PLACED);
+            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderItems(List.of(orderItem));
+
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.updateOrder(any())).thenReturn(order);
+
+            // Then
+            mockMvc.perform(put("/api/v1/orders/{orderId}/orderItem/{itemId}/status/{status}", 1, 1, "PENDING")
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", is(1)))
+                    .andExpect(jsonPath("$.orderItems[0].status", is("PENDING")));
+
+            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).updateOrder(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if the user has SUPER_ADMIN role")
+        void shouldReturn200IfUserHasSuperAdminRole() throws Exception {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setId(1L);
+            orderItem.setStatus(OrderItemStatus.ORDER_PLACED);
+            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderItems(List.of(orderItem));
+
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_SUPER_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.updateOrder(any())).thenReturn(order);
+
+            // Then
+            mockMvc.perform(put("/api/v1/orders/{orderId}/orderItem/{itemId}/status/{status}", 1, 1, "PENDING")
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", is(1)))
+                    .andExpect(jsonPath("$.orderItems[0].status", is("PENDING")));
+
+            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).updateOrder(any());
+        }
+
+        @Test
+        @DisplayName("Should return 401 if the user does not have UPDATE authority or allowed role")
+        void shouldReturn401IfUserDoesNotHaveUpdateAuthorityOrAllowedRole() throws Exception {
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.updateOrder(any())).thenReturn(order);
+
+            // Then
+            mockMvc.perform(put("/api/v1/orders/{orderId}/orderItem/{itemId}/status/{status}", 1, 1, "PENDING")
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isUnauthorized());
+
+            verify(orderService, times(0)).findById(any());
+            verify(orderService, times(0)).updateOrder(any());
+        }
+
+        @Test
+        @DisplayName("Should return 404 if the order does not exist")
+        void shouldReturn404IfOrderDoesNotExist() throws Exception {
+            order.setOrderStatus(OrderStatus.PENDING);
+            User user = new User();
+            user.setAuthorities(new String[]{"UPDATE"});
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findById(any())).thenThrow(new OrderNotFoundException("Order not found"));
+            when(orderService.updateOrder(any())).thenReturn(order);
+
+            // Then
+            mockMvc.perform(put("/api/v1/orders/{orderId}/orderItem/{itemId}/status/{status}", 1, 1, "PENDING")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isNotFound());
+
+            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(0)).updateOrder(any());
+        }
+    }
 }
