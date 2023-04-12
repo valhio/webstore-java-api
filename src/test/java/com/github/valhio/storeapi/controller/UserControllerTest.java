@@ -432,7 +432,7 @@ class UserControllerTest {
 
     @Nested
     @DisplayName("Delete by user id")
-    class DeleteByUserId{
+    class DeleteByUserId {
 
         @Test
         @DisplayName("Should delete user when user has DELETE authority")
@@ -503,6 +503,111 @@ class UserControllerTest {
                     .andExpect(status().isUnauthorized());
 
             verify(userService, times(0)).resetPassword(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Update Password")
+    class UpdatePassword {
+
+        @Test
+        @DisplayName("Should update password when user has role ADMIN")
+//        @WithMockUser(roles = {"ADMIN"})
+        void shouldResetPasswordWhenUserHasAdminRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            doNothing().when(userService).updatePassword(any(), any(), any());
+
+            mockMvc.perform(post("/api/v1/user/update-password")
+                            .param("email", "emailThatDoesNotMatch")
+                            .param("currentPassword", "password")
+                            .param("newPassword", "newPassword")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk());
+
+            verify(userService, times(1)).updatePassword(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should update password when user has role MANAGER")
+        void shouldResetPasswordWhenUserHasManagerRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            doNothing().when(userService).updatePassword(any(), any(), any());
+
+            mockMvc.perform(post("/api/v1/user/update-password")
+                            .param("email", "emailThatDoesNotMatch")
+                            .param("currentPassword", "password")
+                            .param("newPassword", "newPassword")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk());
+
+            verify(userService, times(1)).updatePassword(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should update password when user has role SUPER_ADMIN")
+        void shouldResetPasswordWhenUserHasSuperAdminRole() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_SUPER_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            doNothing().when(userService).updatePassword(any(), any(), any());
+            mockMvc.perform(post("/api/v1/user/update-password")
+                            .param("email", "emailThatDoesNotMatch")
+                            .param("currentPassword", "password")
+                            .param("newPassword", "newPassword")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk());
+
+            verify(userService, times(1)).updatePassword(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should update password when authenticated user's email matches path variable email")
+        void shouldResetPasswordWhenUserEmailMatchesRequestEmail() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            doNothing().when(userService).updatePassword(any(), any(), any());
+            mockMvc.perform(post("/api/v1/user/update-password")
+                            .param("email", user.getEmail())
+                            .param("currentPassword", "password")
+                            .param("newPassword", "newPassword")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk());
+
+            verify(userService, times(1)).updatePassword(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should throw 401 Unauthorized when user does not have authorized role and email does not match")
+        void shouldThrowWhenUserDoesNotHaveUpdateAuthority() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            doNothing().when(userService).updatePassword(any(), any(), any());
+
+            mockMvc.perform(post("/api/v1/user/update-password")
+                            .param("email", "someEmailThatDoesNotMatch")
+                            .param("currentPassword", "password")
+                            .param("newPassword", "newPassword")
+                            .with(user(authenticatedUser))
+                    )
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(0)).updatePassword(any(), any(), any());
         }
     }
 }
