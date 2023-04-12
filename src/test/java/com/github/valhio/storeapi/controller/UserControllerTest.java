@@ -430,4 +430,30 @@ class UserControllerTest {
 
     }
 
+    @Nested
+    @DisplayName("Delete by user id")
+    class DeleteByUserId{
+
+        @Test
+        @DisplayName("Should delete user when user has DELETE authority")
+        @WithMockUser(authorities = {"DELETE"})
+        void shouldDeleteUserWhenUserHasDeleteAuthority() throws Exception {
+            doNothing().when(userService).deleteByUserId(any());
+            mockMvc.perform(delete("/api/v1/user/delete/{id}", 1))
+                    .andExpect(status().isOk());
+
+            verify(userService, times(1)).deleteByUserId(any());
+        }
+
+        @Test
+        @DisplayName("Should should throw 401 Unauthorized when user does not have DELETE authority")
+        @WithMockUser(authorities = {"READ"})
+        void shouldThrowWhenUserDoesNotHaveDeleteAuthority() throws Exception {
+            doNothing().when(userService).deleteByUserId(any());
+            mockMvc.perform(delete("/api/v1/user/delete/{id}", 1))
+                    .andExpect(status().isUnauthorized());
+
+            verify(userService, times(1)).deleteByUserId(any());
+        }
+    }
 }
