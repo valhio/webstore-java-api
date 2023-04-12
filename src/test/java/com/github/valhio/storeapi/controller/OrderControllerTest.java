@@ -408,7 +408,7 @@ class OrderControllerTest {
         @Test
         @DisplayName("Should return 200 if the user has UPDATE authority")
         void shouldReturn200IfUserHasUpdateAuthority() throws Exception {
-            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderStatus(OrderStatus.ORDER_PLACED);
             User user = new User();
             user.setAuthorities(new String[]{"UPDATE"});
             user.setRole(Role.ROLE_USER);
@@ -432,7 +432,7 @@ class OrderControllerTest {
         @Test
         @DisplayName("Should return 200 if the user has ADMIN role")
         void shouldReturn200IfUserHasAdminRole() throws Exception {
-            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderStatus(OrderStatus.ORDER_PLACED);
             User user = new User();
             user.setAuthorities(new String[]{"READ"});
             user.setRole(Role.ROLE_ADMIN);
@@ -456,7 +456,7 @@ class OrderControllerTest {
         @Test
         @DisplayName("Should return 200 if the user has MANAGER role")
         void shouldReturn200IfUserHasManagerRole() throws Exception {
-            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderStatus(OrderStatus.ORDER_PLACED);
             User user = new User();
             user.setAuthorities(new String[]{"READ"});
             user.setRole(Role.ROLE_MANAGER);
@@ -480,7 +480,7 @@ class OrderControllerTest {
         @Test
         @DisplayName("Should return 200 if the user has SUPER_ADMIN role")
         void shouldReturn200IfUserHasSuperAdminRole() throws Exception {
-            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderStatus(OrderStatus.ORDER_PLACED);
             User user = new User();
             user.setAuthorities(new String[]{"READ"});
             user.setRole(Role.ROLE_SUPER_ADMIN);
@@ -504,7 +504,7 @@ class OrderControllerTest {
         @Test
         @DisplayName("Should return 401 if the user does not have UPDATE authority or allowed role")
         void shouldReturn401IfUserDoesNotHaveUpdateAuthorityOrAllowedRole() throws Exception {
-            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderStatus(OrderStatus.ORDER_PLACED);
             User user = new User();
             user.setAuthorities(new String[]{"READ"});
             user.setRole(Role.ROLE_USER);
@@ -526,7 +526,7 @@ class OrderControllerTest {
         @Test
         @DisplayName("Should return 404 if the order does not exist")
         void shouldReturn404IfOrderDoesNotExist() throws Exception {
-            order.setOrderStatus(OrderStatus.PENDING);
+            order.setOrderStatus(OrderStatus.ORDER_PLACED);
             User user = new User();
             user.setAuthorities(new String[]{"UPDATE"});
             user.setRole(Role.ROLE_USER);
