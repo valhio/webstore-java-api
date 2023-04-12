@@ -90,6 +90,11 @@ public class ExceptionHandling {
         return createHttpResponse(NOT_FOUND, e.getMessage());
     }
 
+    @ExceptionHandler(OrderItemNotFoundException.class)
+    public ResponseEntity<HttpResponse> orderItemNotFoundException(OrderItemNotFoundException e) {
+        return createHttpResponse(NOT_FOUND, e.getMessage());
+    }
+
     @ExceptionHandler(MissingServletRequestPartException.class)
     // This exception is thrown when a required part of a multipart request is missing.
     public ResponseEntity<HttpResponse> missingServletRequestPartException(MissingServletRequestPartException e) {
