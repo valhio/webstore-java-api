@@ -271,4 +271,134 @@ class OrderControllerTest {
 
     }
 
+    @Nested
+    @DisplayName("Get orders by email")
+    class GetOrdersByUserEmail {
+
+        @Test
+        @DisplayName("Should return 200 if authenticated user's email matches the one in the request (the path variable)")
+        void shouldReturn200WhenUserEmailMatchesRequestEmail() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+            // When
+            when(orderService.findAllByEmail(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/email/" + user.getEmail())
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id", is(1)));
+
+            verify(orderService, times(1)).findAllByEmail(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if user is authorized with role ADMIN")
+        void shouldReturn200WhenUserHasRoleAdmin() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findAllByEmail(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/email/somethingthatdoesntmatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id", is(1)));
+
+
+            verify(orderService, times(1)).findAllByEmail(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if user is authorized with role MANAGER")
+        void shouldReturn200WhenUserHasRoleManager() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findAllByEmail(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/email/somethingthatdoesntmatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id", is(1)));
+
+
+            verify(orderService, times(1)).findAllByEmail(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if user is authorized with role SUPER_ADMIN")
+        void shouldReturn200WhenUserHasRoleSuperAdmin() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_SUPER_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findAllByEmail(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/email/somethingthatdoesntmatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id", is(1)));
+
+
+            verify(orderService, times(1)).findAllByEmail(any());
+        }
+
+        @Test
+        @DisplayName("Should throw 401 Unauthorized when authenticated user's email does not match the email path variable")
+        void shouldThrow401WhenEmailPathVarDoesNotMatchAuthUserEmail() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findAllByEmail(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/email/somethingthatdoesntmatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isUnauthorized());
+
+            verify(orderService, times(0)).findAllByEmail(any());
+        }
+
+        @Test
+        @DisplayName("Should throw 401 Unauthorized when authenticated user's email does not match the email path variable and user has role of USER")
+        void shouldThrow401WhenEmailPathVarDoesNotMatchAuthUserIdAndRoleIsUser() throws Exception {
+            User user = new User();
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_USER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findAllByEmail(any())).thenReturn(List.of(order, new Order()));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/user/email/somethingthatdoesntmatch")
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isUnauthorized());
+
+            verify(orderService, times(0)).findAllByEmail(any());
+        }
+
+    }
+
 }
