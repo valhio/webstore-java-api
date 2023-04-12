@@ -4,7 +4,7 @@ import com.github.valhio.storeapi.utility.JWTTokenProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -50,8 +50,8 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             // if the email is not null and the security context is empty, we set the authentication
 //            if (jwtTokenProvider.isTokenValid(email, token) && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtTokenProvider.isTokenValid(email, token)) {
-                List<? extends GrantedAuthority> authorities = jwtTokenProvider.getAuthorities(token); // we get the authorities from the token
-                Authentication authentication = jwtTokenProvider.getAuthentication(email, authorities, request); // we get the authentication from the token
+                List<SimpleGrantedAuthority> authorities = jwtTokenProvider.getAuthorities(token); // we get the authorities from the token
+                Authentication authentication = jwtTokenProvider.getAuthentication(token, authorities, request); // we get the authentication from the token
                 SecurityContextHolder.getContext().setAuthentication(authentication); // we set the authentication in the security context
             } else {
                 SecurityContextHolder.clearContext(); // if the token is not valid, we clear the security context

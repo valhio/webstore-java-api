@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     // This method is called by Spring Security when a user tries to log in.
-    // This method is used by Spring Security to load a user by username.
+    // This method is used by Spring Security to load a user by username (in this case, the email).
     // It is used during the authentication process inside the AuthenticationManager located in the UserController class.
     @Override
     public UserDetails loadUserByUsername(String email) {
@@ -135,8 +135,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> findUserByUserId(String userId) {
-        return userRepository.findByUserId(userId);
+    public User findUserByUserId(String userId) throws UserNotFoundException {
+        return userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException(NO_USER_FOUND_BY_USER_ID + userId));
     }
 
     @Override
