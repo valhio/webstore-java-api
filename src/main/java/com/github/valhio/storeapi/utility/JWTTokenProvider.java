@@ -6,13 +6,13 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.github.valhio.storeapi.enumeration.Role;
+import com.github.valhio.storeapi.model.User;
 import com.github.valhio.storeapi.model.UserPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
@@ -55,11 +55,18 @@ public class JWTTokenProvider {
         return collect;
     }
 
-    public Authentication getAuthentication(String email, List<? extends GrantedAuthority> authorities, HttpServletRequest request) {
+    public Authentication getAuthentication(String token, List<SimpleGrantedAuthority> authorities, HttpServletRequest request) {
+        authorities.add(new SimpleGrantedAuthority(this.getUserRole(token)));
+        User user = new User();
+        user.setEmail(this.getSubject(token));
+        user.setAuthorities(authorities.stream().map(GrantedAuthority::getAuthority).toArray(String[]::new));
+        user.setUserId(this.getUserId(token));
+        user.setRole(Role.valueOf(this.getUserRole(token)));
+        UserPrincipal userPrincipal = new UserPrincipal(user);
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(email, null, authorities); // Username, credentials, authorities. Credentials are not needed because we have already verified the token
+                new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities); // Username, credentials, authorities. Credentials are not needed because we have already verified the token
         usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // Set the details of the request (IP address, session ID, etc)
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); // Set the authentication in the Security Context
+//        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); // Set the authentication in the Security Context
         return usernamePasswordAuthenticationToken; // Return the authentication
     }
 
