@@ -411,50 +411,21 @@ class UserControllerTest {
         @WithMockUser(username = "leeroy@jenkins", authorities = {"DELETE"})
         void testDeleteUser() throws Exception {
             doNothing().when(userService).delete(any());
-            mockMvc.perform(delete("/api/v1/user/delete/{id}", 1L)
-                            .with(user("asd").password("asd").authorities(new SimpleGrantedAuthority("DELETE")))
-                    )
+            mockMvc.perform(delete("/api/v1/user/delete/{id}", 1L))
                     .andExpect(status().isOk());
         }
 
         @Test
-        @DisplayName("Should throw 401-UNAUTHORIZED AccessDeniedException when user does not have DELETE authority")
+        @DisplayName("Should throw 401-UNAUTHORIZED when user does not have DELETE authority")
         @WithMockUser(username = "leeroy@jenkins", password = "123456", authorities = {"UPDATE"})
         void testDeleteUserWithoutDeleteAuthority() throws Exception {
             doNothing().when(userService).delete(1L);
-            mockMvc.perform(delete("http://localhost:8080/api/v1/user/delete/{id}", 1L)
+            mockMvc.perform(delete("/api/v1/user/delete/{id}", 1L)
             ).andExpect(status().isUnauthorized());
 
             verify(userService, times(0)).delete(1L);
         }
 
-    }
-
-    @Nested
-    @DisplayName("Delete by user id")
-    class DeleteByUserId {
-
-        @Test
-        @DisplayName("Should delete user when user has DELETE authority")
-        @WithMockUser(authorities = {"DELETE"})
-        void shouldDeleteUserWhenUserHasDeleteAuthority() throws Exception {
-            doNothing().when(userService).deleteByUserId(any());
-            mockMvc.perform(delete("/api/v1/user/delete/{id}", 1))
-                    .andExpect(status().isOk());
-
-            verify(userService, times(1)).deleteByUserId(any());
-        }
-
-        @Test
-        @DisplayName("Should should throw 401 Unauthorized when user does not have DELETE authority")
-        @WithMockUser(authorities = {"READ"})
-        void shouldThrowWhenUserDoesNotHaveDeleteAuthority() throws Exception {
-            doNothing().when(userService).deleteByUserId(any());
-            mockMvc.perform(delete("/api/v1/user/delete/{id}", 1))
-                    .andExpect(status().isUnauthorized());
-
-            verify(userService, times(1)).deleteByUserId(any());
-        }
     }
 
     @Nested
