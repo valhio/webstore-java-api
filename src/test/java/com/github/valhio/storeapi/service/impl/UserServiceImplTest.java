@@ -415,4 +415,80 @@ class UserServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test update password")
+    class UpdatePassword {
+
+        @Test
+        @DisplayName("Should update password successfully")
+        void testUpdatePassword() throws UserNotFoundException, PasswordNotMatchException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+            when(passwordEncoder.encode(anyString())).thenReturn("newPassword");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+
+            User response = userService.updatePassword(user.getEmail(), user.getPassword(), "newPassword");
+
+
+            assertEquals(user, response);
+            assertEquals("newPassword", response.getPassword());
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(passwordEncoder, times(1)).matches(anyString(), anyString());
+            verify(passwordEncoder, times(1)).encode(anyString());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update password should throw UserNotFoundException when user is not found")
+        void testUpdatePasswordShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.updatePassword(user.getUserId(), user.getPassword(), "newPassword");
+            });
+
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(passwordEncoder, never()).matches(anyString(), anyString());
+            verify(passwordEncoder, never()).encode(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update password should throw PasswordNotMatchException when password does not match")
+        void testUpdatePasswordShouldThrowWhenPasswordDoesNotMatch() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+
+            assertThrows(PasswordNotMatchException.class, () -> {
+                userService.updatePassword(user.getUserId(), user.getPassword(), "newPassword");
+            });
+
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(passwordEncoder, times(1)).matches(anyString(), anyString());
+            verify(passwordEncoder, never()).encode(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+    }
+
 }
