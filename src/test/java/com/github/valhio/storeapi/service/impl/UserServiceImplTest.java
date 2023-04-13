@@ -159,4 +159,92 @@ class UserServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test update user")
+    class UpdateUser {
+        @Test
+        @DisplayName("Test update user should succeed when email is not changed")
+        void testUpdateUser() throws EmailExistException, UserNotFoundException {
+            User newUser = new User();
+            newUser.setId(1L);
+            newUser.setEmail("NOT leeroy");
+            newUser.setPassword("password");
+            newUser.setRole(Role.ROLE_USER);
+            newUser.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+            when(userRepository.save(any(User.class))).thenReturn(newUser);
+
+            User res = userService.update(newUser, user.getEmail());
+
+            assertEquals(newUser, res);
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update user should throw UserExistsException when email is changed to an existing email")
+        void testUpdateUserShouldThrowWhenNewEmailAlreadyExists() throws EmailExistException, UserNotFoundException {
+            User newUser = new User();
+            newUser.setId(1L);
+            newUser.setEmail("NOT leeroy");
+            newUser.setPassword("password");
+            newUser.setRole(Role.ROLE_USER);
+            newUser.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+            when(userRepository.existsByEmail(newUser.getEmail())).thenReturn(true);
+
+            assertThrows(EmailExistException.class, () -> {
+                userService.update(newUser, user.getEmail());
+            });
+
+            verify(userRepository, times(1)).existsByEmail(anyString());
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update user should throw UserNotFoundException when user is not found")
+        void testUpdateUserShouldThrowWhenUserNotFound() throws EmailExistException, UserNotFoundException {
+            User newUser = new User();
+            newUser.setId(1L);
+            newUser.setEmail("NOT leeroy");
+            newUser.setPassword("password");
+            newUser.setRole(Role.ROLE_USER);
+            newUser.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.update(newUser, user.getEmail());
+            });
+
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+    }
+
 }
