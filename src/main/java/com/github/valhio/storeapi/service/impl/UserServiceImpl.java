@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userPrincipal;
     }
 
-    // Validate if the user is locked or not.
+    // Validate if the user is locked or not (if the user has exceeded the maximum number of login attempts).
     private void validateLoginAttempt(User user) {
         if (user.isNotLocked()) {
             user.setNotLocked(!loginAttemptService.isBlocked(user.getEmail()));
@@ -143,12 +143,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void updatePassword(String email, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException {
+    public User updatePassword(String email, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException {
         User user = this.findUserByEmail(email);
         if (!passwordEncoder.matches(currentPassword, user.getPassword()))
             throw new PasswordNotMatchException(INCORRECT_CURRENT_PASSWORD);
         user.setPassword(encodePassword(newPassword));
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
