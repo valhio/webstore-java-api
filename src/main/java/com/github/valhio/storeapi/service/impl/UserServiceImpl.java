@@ -152,13 +152,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void updateEmail(String email, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException {
+    public User updateEmail(String email, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException {
         User user = this.findUserByEmail(email);
         if (!passwordEncoder.matches(currentPassword, user.getPassword()))
             throw new PasswordNotMatchException(INCORRECT_CURRENT_PASSWORD);
         validateEmailExists(newEmail);
         user.setEmail(newEmail);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override

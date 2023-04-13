@@ -28,7 +28,7 @@ public interface UserService {
 
     User updatePassword(String username, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException;
 
-    void updateEmail(String username, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException;
+    User updateEmail(String username, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException;
 
     Role getUserRole(String username) throws UserNotFoundException;
 
