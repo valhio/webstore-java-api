@@ -37,9 +37,7 @@ public class OrderServiceImpl implements OrderService {
             try {
                 if (item.getProduct() != null)
                     productService.removeQuantity(item.getProduct().getId(), item.getQuantity());
-
-            } catch (ProductNotFoundException e) {
-                e.printStackTrace();
+            } catch (ProductNotFoundException ignored) {
             }
         });
         return repository.save(order);
