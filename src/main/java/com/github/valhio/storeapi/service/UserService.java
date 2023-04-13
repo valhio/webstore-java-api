@@ -26,13 +26,13 @@ public interface UserService {
 
     void resetPassword(String email) throws UserNotFoundException;
 
-    void updatePassword(String username, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException;
+    User updatePassword(String username, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException;
 
-    void updateEmail(String username, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException;
+    User updateEmail(String username, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException;
 
     Role getUserRole(String username) throws UserNotFoundException;
 
-    Collection<User> getUsersByRole(String role);
+    Collection<User> getUsersByRole(String role) throws UserNotFoundException;
 
     Collection<String> getUserAuthorities(String username) throws UserNotFoundException;
 

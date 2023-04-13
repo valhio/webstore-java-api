@@ -489,7 +489,7 @@ class UserControllerTest {
             user.setRole(Role.ROLE_ADMIN);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updatePassword(any(), any(), any());
+            when(userService.updatePassword(any(), any(), any())).thenReturn(new User());
 
             mockMvc.perform(post("/api/v1/user/update-password")
                             .param("email", "emailThatDoesNotMatch")
@@ -509,7 +509,7 @@ class UserControllerTest {
             user.setRole(Role.ROLE_MANAGER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updatePassword(any(), any(), any());
+            when(userService.updatePassword(any(), any(), any())).thenReturn(new User());
 
             mockMvc.perform(post("/api/v1/user/update-password")
                             .param("email", "emailThatDoesNotMatch")
@@ -529,7 +529,8 @@ class UserControllerTest {
             user.setRole(Role.ROLE_SUPER_ADMIN);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updatePassword(any(), any(), any());
+            when(userService.updatePassword(any(), any(), any())).thenReturn(new User());
+
             mockMvc.perform(post("/api/v1/user/update-password")
                             .param("email", "emailThatDoesNotMatch")
                             .param("currentPassword", "password")
@@ -548,7 +549,8 @@ class UserControllerTest {
             user.setRole(Role.ROLE_USER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updatePassword(any(), any(), any());
+            when(userService.updatePassword(any(), any(), any())).thenReturn(new User());
+
             mockMvc.perform(post("/api/v1/user/update-password")
                             .param("email", user.getEmail())
                             .param("currentPassword", "password")
@@ -567,7 +569,7 @@ class UserControllerTest {
             user.setRole(Role.ROLE_USER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updatePassword(any(), any(), any());
+            when(userService.updatePassword(any(), any(), any())).thenReturn(new User());
 
             mockMvc.perform(post("/api/v1/user/update-password")
                             .param("email", "someEmailThatDoesNotMatch")
@@ -594,7 +596,7 @@ class UserControllerTest {
             user.setRole(Role.ROLE_ADMIN);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updateEmail(any(), any(), any());
+            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
 
             mockMvc.perform(post("/api/v1/user/update-email")
                             .param("email", "emailThatDoesNotMatch")
@@ -614,7 +616,7 @@ class UserControllerTest {
             user.setRole(Role.ROLE_MANAGER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updateEmail(any(), any(), any());
+            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
 
             mockMvc.perform(post("/api/v1/user/update-email")
                             .param("email", "emailThatDoesNotMatch")
@@ -634,7 +636,8 @@ class UserControllerTest {
             user.setRole(Role.ROLE_SUPER_ADMIN);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updateEmail(any(), any(), any());
+            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
+
             mockMvc.perform(post("/api/v1/user/update-email")
                             .param("email", "emailThatDoesNotMatch")
                             .param("currentPassword", "password")
@@ -653,7 +656,8 @@ class UserControllerTest {
             user.setRole(Role.ROLE_USER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updateEmail(any(), any(), any());
+            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
+
             mockMvc.perform(post("/api/v1/user/update-email")
                             .param("email", user.getEmail())
                             .param("currentPassword", "password")
@@ -672,7 +676,7 @@ class UserControllerTest {
             user.setRole(Role.ROLE_USER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            doNothing().when(userService).updateEmail(any(), any(), any());
+            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
 
             mockMvc.perform(post("/api/v1/user/update-email")
                             .param("email", "someEmailThatDoesNotMatch")

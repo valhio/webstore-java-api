@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userPrincipal;
     }
 
-    // Validate if the user is locked or not.
+    // Validate if the user is locked or not (if the user has exceeded the maximum number of login attempts).
     private void validateLoginAttempt(User user) {
         if (user.isNotLocked()) {
             user.setNotLocked(!loginAttemptService.isBlocked(user.getEmail()));
@@ -143,22 +143,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void updatePassword(String email, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException {
+    public User updatePassword(String email, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException {
         User user = this.findUserByEmail(email);
         if (!passwordEncoder.matches(currentPassword, user.getPassword()))
             throw new PasswordNotMatchException(INCORRECT_CURRENT_PASSWORD);
         user.setPassword(encodePassword(newPassword));
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
-    public void updateEmail(String email, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException {
+    public User updateEmail(String email, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException {
         User user = this.findUserByEmail(email);
         if (!passwordEncoder.matches(currentPassword, user.getPassword()))
             throw new PasswordNotMatchException(INCORRECT_CURRENT_PASSWORD);
         validateEmailExists(newEmail);
         user.setEmail(newEmail);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
@@ -174,8 +174,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Collection<User> getUsersByRole(String role) {
-        return userRepository.findAllByRole(Role.valueOf(role.toUpperCase()));
+    public Collection<User> getUsersByRole(String role) throws UserNotFoundException {
+        return userRepository.findAllByRole(Role.valueOf(role.toUpperCase()))
+                .orElseThrow(() -> new UserNotFoundException("No users found with role: " + role));
     }
 
     @Override

@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    Collection<User> findAllByRole(Role role);
+    Optional<Collection<User>> findAllByRole(Role role);
 
     Optional<User> findByUserId(String userId);
 
