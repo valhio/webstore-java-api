@@ -247,4 +247,46 @@ class UserServiceImplTest {
 
     }
 
+    @Nested
+    @DisplayName("Test delete by Id")
+    class DeleteById {
+
+        @Test
+        @DisplayName("Test delete user")
+        void testDeleteUser() throws UserNotFoundException {
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findById(any())).thenReturn(Optional.of(user));
+            doNothing().when(userRepository).delete(any(User.class));
+
+            userService.delete(user.getId());
+
+            verify(userRepository, times(1)).findById(any());
+            verify(userRepository, times(1)).delete(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test delete should not delete if user does not exist")
+        void testDeleteUserShouldNotDeleteIfUserDoesNotExist() throws UserNotFoundException {
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+            userService.delete(user.getId());
+
+            verify(userRepository, times(1)).findById(any());
+            verify(userRepository, never()).delete(any(User.class));
+        }
+    }
+
 }
