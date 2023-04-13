@@ -624,4 +624,45 @@ class UserServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test get user authorities")
+    class GetUserAuthorities {
+        @Test
+        @DisplayName("Should return user authorities successfully")
+        void testGetUserAuthorities() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+
+            String[] strings = userService.getUserAuthorities(user.getEmail()).toArray(new String[0]);
+
+            assertArrayEquals(user.getAuthorities(), strings);
+            verify(userRepository, times(1)).findByEmail(anyString());
+        }
+
+        @Test
+        @DisplayName("Test get user authorities should throw UserNotFoundException when user is not found")
+        void testGetUserAuthoritiesShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.getUserAuthorities(user.getEmail());
+            });
+
+            verify(userRepository, times(1)).findByEmail(anyString());
+        }
+    }
+
 }
