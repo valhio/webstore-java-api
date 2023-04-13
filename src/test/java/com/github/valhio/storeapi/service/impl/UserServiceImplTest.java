@@ -331,4 +331,46 @@ class UserServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test find user by email")
+    class FindByEmail {
+
+        @Test
+        @DisplayName("Test find user by email")
+        void testFindUserByEmail() throws UserNotFoundException {
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+
+            User res = userService.findUserByEmail(user.getEmail());
+
+            assertEquals(user, res);
+            verify(userRepository, times(1)).findByEmail(anyString());
+        }
+
+        @Test
+        @DisplayName("Test find user by email should throw UserNotFoundException when user is not found")
+        void testFindUserByEmailShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.findUserByEmail(user.getEmail());
+            });
+
+            verify(userRepository, times(1)).findByEmail(anyString());
+        }
+    }
+
 }
