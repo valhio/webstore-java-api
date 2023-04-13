@@ -36,12 +36,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findAll2(Integer pageNo, Integer pageSize, String sortBy, String keyword) {
-        return repository.findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy)));
-    }
-
-
-    @Override
     public Product findById(Long id) throws ProductNotFoundException {
         return repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(String.format(WITH_ID_WAS_NOT_FOUND, id)));

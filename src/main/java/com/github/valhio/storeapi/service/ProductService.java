@@ -8,8 +8,6 @@ public interface ProductService {
 
     Page<Product> findAll(Integer pageNo, Integer pageSize, String sortBy, String keyword);
 
-    Page<Product> findAll2(Integer pageNo, Integer pageSize, String sortBy, String keyword);
-
     Product findById(Long id) throws ProductNotFoundException;
 
     Product save(Product product);
