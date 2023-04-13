@@ -491,4 +491,96 @@ class UserServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test update email")
+    class UpdateEmail {
+
+        @Test
+        @DisplayName("Should update email successfully")
+        void testUpdateEmail() throws UserNotFoundException, EmailExistException, PasswordNotMatchException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+            when(userRepository.existsByEmail(anyString())).thenReturn(false);
+            when(userRepository.save(any(User.class))).thenReturn(user);
+
+            User response = userService.updateEmail(user.getEmail(), user.getPassword(), "newEmail");
+
+            assertEquals(user, response);
+            assertEquals("newEmail", response.getEmail());
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update email should throw UserNotFoundException when user is not found")
+        void testUpdateEmailShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.updateEmail(user.getUserId(), user.getPassword(), "newEmail");
+            });
+
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update email should throw EmailExistException when email already exist")
+        void testUpdateEmailShouldThrowWhenEmailExist() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+            when(userRepository.existsByEmail(anyString())).thenReturn(true);
+
+            assertThrows(EmailExistException.class, () -> {
+                userService.updateEmail(user.getUserId(), user.getPassword(), "newEmail");
+            });
+
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update email should throw PasswordNotMatchException when password does not match")
+        void testUpdateEmailShouldThrowWhenPasswordDoesNotMatch() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+
+            assertThrows(PasswordNotMatchException.class, () -> {
+                userService.updateEmail(user.getUserId(), user.getPassword(), "newEmail");
+            });
+
+            verify(userRepository, times(1)).findByEmail(anyString());
+            verify(passwordEncoder, times(1)).matches(anyString(), anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+    }
+
 }
