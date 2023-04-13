@@ -373,4 +373,46 @@ class UserServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test find user by userId")
+    class FindByUserId {
+
+        @Test
+        @DisplayName("Test find user by userId")
+        void testFindUserByUserId() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.of(user));
+
+            User res = userService.findUserByUserId(user.getUserId());
+
+            assertEquals(user, res);
+            verify(userRepository, times(1)).findByUserId(anyString());
+        }
+
+        @Test
+        @DisplayName("Test find user by userId should throw UserNotFoundException when user is not found")
+        void testFindUserByUserIdShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.findUserByUserId(user.getUserId());
+            });
+
+            verify(userRepository, times(1)).findByUserId(anyString());
+        }
+    }
+
 }
