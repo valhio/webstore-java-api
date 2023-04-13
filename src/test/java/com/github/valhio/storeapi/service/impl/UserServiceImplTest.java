@@ -63,4 +63,39 @@ class UserServiceImplTest {
         verify(userRepository).findAll(keyword, pageRequest);
     }
 
+    @Nested
+    @DisplayName("Test load user by username")
+    class TestLoadUserByUsername {
+
+        @Test
+        void testLoadUserByUsername() {
+            String email = "john.doe@example.com";
+            User user = new User();
+            user.setId(1L);
+            user.setEmail(email);
+            user.setPassword("password");
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            when(userRepository.save(user)).thenReturn(user);
+
+            UserDetails userDetails = userService.loadUserByUsername(email);
+
+            assertNotNull(userDetails);
+            assertEquals(user.getEmail(), userDetails.getUsername());
+            assertEquals(user.getPassword(), userDetails.getPassword());
+            verify(userRepository, times(1)).save(user);
+            verify(userRepository, times(1)).findByEmail(email);
+        }
+
+        @Test
+        void testLoadUserByUsernameWithInvalidEmail() {
+            String email = "john.doe@example.com";
+
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+            assertThrows(UsernameNotFoundException.class, () -> {
+                userService.loadUserByUsername(email);
+            });
+        }
+    }
+
 }
