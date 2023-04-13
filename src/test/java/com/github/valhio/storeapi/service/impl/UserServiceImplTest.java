@@ -98,4 +98,65 @@ class UserServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test register")
+    class TestRegister {
+
+        @Test
+        @DisplayName("Test register should succeed")
+        void testRegister() throws EmailExistException {
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+
+            when(userRepository.existsByEmail(anyString())).thenReturn(false);
+            when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+
+            User res = userService.register(user);
+
+            assertEquals(user, res);
+            verify(userRepository, times(1)).existsByEmail(anyString());
+            verify(passwordEncoder, times(1)).encode(anyString());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test register should throw EmailExistException")
+        void testRegisterWithExistingEmail() {
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("leeroy");
+            user.setPassword("password");
+
+            when(userRepository.existsByEmail(anyString())).thenReturn(true);
+
+            assertThrows(EmailExistException.class, () -> {
+                userService.register(user);
+            });
+
+            verify(userRepository, times(1)).existsByEmail(anyString());
+            verify(passwordEncoder, never()).encode(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test register should throw IllegalArgumentException if no email is passed")
+        void testRegisterWithInvalidEmail() {
+            User user = new User();
+            user.setId(1L);
+            user.setEmail("");
+            user.setPassword("password");
+
+            assertThrows(IllegalArgumentException.class, () -> {
+                userService.register(user);
+            });
+
+            verify(userRepository, never()).existsByEmail(anyString());
+            verify(passwordEncoder, never()).encode(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+    }
+
 }
