@@ -32,7 +32,7 @@ public interface UserService {
 
     Role getUserRole(String username) throws UserNotFoundException;
 
-    Collection<User> getUsersByRole(String role);
+    Collection<User> getUsersByRole(String role) throws UserNotFoundException;
 
     Collection<String> getUserAuthorities(String username) throws UserNotFoundException;
 

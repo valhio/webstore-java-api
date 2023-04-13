@@ -174,8 +174,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Collection<User> getUsersByRole(String role) {
-        return userRepository.findAllByRole(Role.valueOf(role.toUpperCase()));
+    public Collection<User> getUsersByRole(String role) throws UserNotFoundException {
+        return userRepository.findAllByRole(Role.valueOf(role.toUpperCase()))
+                .orElseThrow(() -> new UserNotFoundException("No users found with role: " + role));
     }
 
     @Override
