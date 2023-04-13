@@ -665,4 +665,58 @@ class UserServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test get all users with role")
+    class GetAllUsersWithRole {
+        @Test
+        @DisplayName("Should return all users with role successfully")
+        void testGetAllUsersWithRole() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            User user2 = new User();
+            user2.setUserId("2");
+            user2.setEmail("leeroy2");
+            user2.setPassword("password");
+            user2.setRole(Role.ROLE_USER);
+            user2.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findAllByRole(any(Role.class))).thenReturn(Optional.of(List.of(user, user2)));
+
+            List<User> response = userService.getUsersByRole("ROLE_USER").stream().toList();
+
+            assertEquals(List.of(user, user2), response);
+            verify(userRepository, times(1)).findAllByRole(any(Role.class));
+        }
+
+        @Test
+        @DisplayName("Test get all users with role should throw UserNotFoundException when user is not found")
+        void testGetAllUsersWithRoleShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            User user2 = new User();
+            user2.setUserId("2");
+            user2.setEmail("leeroy2");
+            user2.setPassword("password");
+            user2.setRole(Role.ROLE_USER);
+            user2.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findAllByRole(any(Role.class))).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.getUsersByRole("ROLE_USER");
+            });
+
+            verify(userRepository, times(1)).findAllByRole(any(Role.class));
+        }
+    }
 }
