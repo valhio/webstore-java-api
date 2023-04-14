@@ -26,6 +26,31 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+    The OrderController class is a REST API controller for handling orders in a store. It contains several API endpoints for creating,
+    retrieving, and updating orders, as well as retrieving orders for a particular user or email address.
+    Here is a breakdown of the key features of the controller:
+
+    The newOrder method creates a new order by parsing the order request payload and creating a new Order object with the given data.
+    The method also sets the current date and time as the order date, and sets the order status to "ORDER_PLACED".
+    The method then calls the createOrder method of the OrderService to persist the order to a database.
+
+    The getOrdersByUserId and getOrdersByUserEmail methods retrieve orders from the database for a particular user
+    by their user ID or email address, respectively. These methods are restricted to users with the appropriate permissions,
+    as specified by the PreAuthorize annotations.
+
+    The getOrderById method retrieves a single order from the database by its ID. This method is also restricted to authorized users,
+    and uses JWT authentication to ensure that the requester has the appropriate permissions to access the order.
+
+    The updateOrderStatus and updateOrderItemStatus methods update the status of an order or order item, respectively.
+    These methods are also restricted to authorized users with the appropriate permissions.
+
+    The controller also includes some exception handling for cases where the requested order or user cannot be found.
+
+    Overall, this controller provides a set of endpoints for creating, retrieving, and updating orders in a store,
+    with appropriate security and access restrictions in place to ensure that only authorized users can access or modify the orders.
+*/
+
 @CrossOrigin
 @RestController
 @RequestMapping("api/v1/orders")

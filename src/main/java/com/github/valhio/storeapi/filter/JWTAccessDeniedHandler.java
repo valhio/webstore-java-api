@@ -15,9 +15,17 @@ import java.io.OutputStream;
 
 import static com.github.valhio.storeapi.constant.SecurityConstant.ACCESS_DENIED_MESSAGE;
 
-/**
- * This class is used to return a 401 error code to clients that try to access a protected resource without proper authentication.
- * (They do not have the required role).
+/*
+  The JWTAccessDeniedHandler class is used to return a 401 error code to clients that try to access a protected resource without proper authorization.
+  (They do not have the required role).
+
+  This class implements the AccessDeniedHandler interface from Spring Security.
+  It's responsible for handling access denied errors that occur when a client tries to access a protected resource
+  without proper authorization.
+
+  The handle method is called by Spring Security when access denied exception occurs.
+  It creates an HttpResponse object with a status code of 401 (Unauthorized), and a message of "Access denied".
+  It then writes this object to the response output stream in JSON format using the Jackson ObjectMapper.
  */
 @Component
 public class JWTAccessDeniedHandler implements AccessDeniedHandler {

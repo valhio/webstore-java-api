@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.Map;
 
+/*
+    The ProductController class is a REST API controller for handling products in a store. It contains several API endpoints for creating,
+    retrieving, and updating products, as well as retrieving products.
+*/
+
 //@CrossOrigin
 @RestController
 @RequestMapping("api/v1/products")

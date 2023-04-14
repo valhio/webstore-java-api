@@ -20,8 +20,13 @@ import java.util.Objects;
 import static org.springframework.http.HttpStatus.*;
 
 /*
- *   This class is responsible for handling all exceptions thrown by the application.
- * */
+    The ExceptionHandling class is responsible for handling all exceptions thrown by the application, as long as they extend the ExceptionHandler class.
+
+    This class is a controller advice that provides a centralized way of handling exceptions thrown by the application.
+    It defines various exception handler methods that handle specific exceptions thrown by the application.
+    Each exception handler method maps an exception to an appropriate HTTP response status and returns an HTTP response
+    with a custom message.
+*/
 @Slf4j
 @RestControllerAdvice
 public class ExceptionHandling {

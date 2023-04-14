@@ -16,9 +16,18 @@ import java.util.Date;
 import static com.github.valhio.storeapi.constant.SecurityConstant.FORBIDDEN_MESSAGE;
 
 /*
- *   This class is used to return a 403 error code to clients that try to access a protected resource without proper authentication.
- *  (Client is not logged in)
- * */
+  The JWTAuthenticationEntryPoint class is used to return a 403 error code to clients that try to access a protected resource without proper authentication.
+  (Client is not logged in)
+
+  This class handles authentication exceptions that occur when an unauthenticated user tries to access a protected resource.
+  It extends the Http403ForbiddenEntryPoint class from Spring Security, which is a default implementation
+  that returns a 403 status code to clients that try to access a protected resource without proper authentication.
+
+  This class overrides the commence method that is called whenever an exception is thrown
+  due to an unauthenticated user trying to access a resource that requires authentication.
+  It creates a new HttpResponse object with a 403 status code and a forbidden message.
+  It sets the content type to JSON and writes the HttpResponse object to the response output stream using an ObjectMapper object. The HttpResponse object contains the status code, status, reason, message, and timestamp.
+ */
 @Component
 public class JWTAuthenticationEntryPoint extends Http403ForbiddenEntryPoint {
 

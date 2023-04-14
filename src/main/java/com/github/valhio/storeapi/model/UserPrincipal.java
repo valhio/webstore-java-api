@@ -13,7 +13,29 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /*
- *   This class is used to represent the user in the application (Spring Security).
+    The UserPrinciple class is used to represent the user in the application (Spring Security).
+
+    The UserPrincipal class is a UserDetails implementation used to represent the user in the application's security context,
+    specifically in Spring Security. It is essentially a wrapper around the User entity and provides the necessary information
+    to Spring Security for authentication and authorization purposes.
+
+    This class has three methods that provide access to user information, namely getRole(), getEmail(), and getUserId().
+    These methods return the corresponding values from the User entity.
+
+    The getAuthorities() method returns a collection of GrantedAuthority objects that represent the user's authorities.
+    This method is used by Spring Security to determine whether the user has access to specific endpoints in the application.
+
+    The getPassword() method returns the user's password. However, this method is usually not used
+    because the password is typically not stored in plain text but rather encrypted in the database.
+
+    The getUsername() method returns the user's email address, which serves as the username for authentication purposes.
+
+    The remaining methods (isAccountNonExpired(), isAccountNonLocked(), isCredentialsNonExpired(), and isEnabled()) return boolean values
+    that indicate whether the user account is valid and can be used for authentication and authorization.
+
+    Overall, the UserPrincipal class provides the necessary user information for Spring Security to
+    authenticate and authorize the user in the application.
+
  * */
 @NoArgsConstructor
 @AllArgsConstructor

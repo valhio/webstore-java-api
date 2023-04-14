@@ -5,6 +5,14 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.stereotype.Component;
 
+
+/*
+    The AuthenticationFailureListener class is a listener that listens for authentication failure events (AuthenticationFailureBadCredentialsEvent).
+    When an authentication failure event occurs, the onAuthenticationFailure method is called automatically by Spring's event handling mechanism,
+    passing the 'AuthenticationFailureBadCredentialsEvent' object as an argument.
+    The method extracts the username of the user who failed to log in and calls the loginFailed method
+    of the LoginAttemptService class to increment the number of failed login attempts for that user.
+ */
 @Component
 public class AuthenticationFailureListener {
 

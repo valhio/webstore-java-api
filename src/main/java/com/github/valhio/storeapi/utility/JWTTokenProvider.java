@@ -25,8 +25,35 @@ import static com.github.valhio.storeapi.constant.SecurityConstant.*;
 import static java.util.Arrays.stream;
 
 /*
- *   This class is used to generate and validate JWT tokens.
- * */
+    The JWTTokenProvider class is used to generate and validate JWT tokens.
+    It relies on the Auth0 library to create and verify tokens.
+
+    The generateJwtToken method takes a UserPrincipal object as an argument, and generates a JWT token based on the user's data.    The method creates the token with a set of claims, such as the issuer, audience, and expiration time, and signs it using the provided secret key.
+    UserPrincipal is a custom class that implements the UserDetails interface. It is used to represent the user
+    in the application (Spring Security).
+
+
+    The getAuthorities method takes a JWT token as an argument and returns a list of SimpleGrantedAuthority objects
+    representing the user's roles and permissions.
+
+    The getAuthentication method takes a JWT token, a list of authorities, and an HTTP request as arguments,
+    and returns an Authentication object representing the user's authenticated state.
+
+    The isTokenValid method takes an email and a JWT token as arguments, and verifies that the token is valid and
+    corresponds to the given email address.
+
+    The getJWTVerifier method returns a JWT verifier object that can be used to verify the authenticity of a token.
+
+    The getClaimsFromUser method extracts the user's authorities from a UserPrincipal object and returns them as an array of strings.
+
+    The getClaimsFromToken method extracts the claims from a JWT token and returns them as an array of strings.
+
+    The getSubject method extracts the subject (in this case, the email address) from a JWT token.
+
+    The getUserId method extracts the user ID from a JWT token.
+
+    The getUserRole method extracts the user's role from a JWT token.
+*/
 @Component
 public class JWTTokenProvider {
 

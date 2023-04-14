@@ -20,8 +20,31 @@ import static com.github.valhio.storeapi.constant.SecurityConstant.OPTIONS_HTTP_
 import static com.github.valhio.storeapi.constant.SecurityConstant.TOKEN_PREFIX;
 
 /*
- *   This class is used to validate the JWT token sent by the client in the Authorization header of the request.
- * */
+    The JWTAuthorizationFilter class is used to validate the JWT token sent by the client in the Authorization header of the request.
+
+    This class extends the OncePerRequestFilter class. Its purpose is to filter incoming requests
+    to validate the JSON Web Token (JWT) sent by the client in the Authorization header of the request.
+
+    OncePerRequestFilter is a Spring Security filter that is used to filter incoming requests to validate the JSON Web Token (JWT)
+    sent by the client in the Authorization header of the request.
+
+    When a request is received, the doFilterInternal method is called.
+    The method first checks if the request method is OPTIONS. If it is, the method sets the response status to HttpStatus.OK.
+    OPTIONS is a preflight request sent by the browser to the server to check if the origin is allowed to make the actual request.
+    If the request method is not OPTIONS, the method extracts the JWT from the Authorization header of the request.
+
+    If the JWT is not present or does not start with the TOKEN_PREFIX constant,
+    the filter passes the request to the next filter in the chain without any further processing.
+    If the JWT is present and starts with the TOKEN_PREFIX constant,
+    the filter uses the JWTTokenProvider to validate the token and extract the email and authorities from it.
+
+    If the email is not null and the security context is empty, the filter sets the authentication in the security context.
+    If the token is not valid, the security context is cleared.
+    Finally, the filter passes the request to the next filter in the chain.
+
+    In summary, the JWTAuthorizationFilter is responsible for validating the JWT sent by the client in the Authorization header of the request
+    and setting the authentication in the security context if the JWT is valid.
+*/
 
 @Component
 public class JWTAuthorizationFilter extends OncePerRequestFilter {

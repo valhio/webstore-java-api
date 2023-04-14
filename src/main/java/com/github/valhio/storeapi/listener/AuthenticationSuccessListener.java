@@ -7,6 +7,14 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.stereotype.Component;
 
+/*
+    The AuthenticationSuccessListener class is a listener that listens for authentication success events (AuthenticationSuccessEvent).
+    When an authentication success event occurs, the onAuthenticationSuccess method is called automatically by Spring's event handling mechanism,
+    passing the 'AuthenticationSuccessEvent' object as an argument.
+    The method extracts the username of the user who successfully logged in and calls the loginSucceeded method
+    of the LoginAttemptService class to reset the number of failed login attempts for that user.
+ */
+
 @Component
 public class AuthenticationSuccessListener {
 

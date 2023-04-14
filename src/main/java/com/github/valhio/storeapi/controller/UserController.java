@@ -28,6 +28,13 @@ import java.util.Optional;
 
 import static com.github.valhio.storeapi.constant.SecurityConstant.JWT_TOKEN_HEADER;
 
+/*
+    The UserController class is a Spring Boot REST controller that provides API endpoints for user-related operations
+    such as registration, login, user retrieval, update, and deletion.
+    The controller uses Spring Security to manage user authentication and authorization.
+    The class extends the ExceptionHandling class, which provides global exception handling for the controller.
+*/
+
 @RestController
 @RequestMapping(path = {"/api/v1/user"})
 public class UserController extends ExceptionHandling {
