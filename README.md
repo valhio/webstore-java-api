@@ -1,18 +1,56 @@
 # E-commerce RESTful API
 
-This is an E-commerce RESTful API built using Java, Spring Boot, Spring Web, JPA, Spring MVC, OAuth2-Jwt, MySQL Docker container, Spring Security, and Apache Maven. The API includes security measures utilizing authentication and authorization in the form of user rights (Roles and Authorities).
+This is an e-commerce RESTful API built using Java, Spring Boot, Spring Web, Spring Data JPA, Spring MVC, Spring
+Security, OAuth2-Jwt, MySQL Docker container, Apache Maven and more. The API includes security measures utilizing Spring
+Security and OAuth2-Jwt with user authentication and authorization features, in the form of user rights (user roles and
+authorities), in order to restrict access to specific endpoints.
 
 ## Table of Contents
 
+- [Key Features](#key-features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Features](#features)
 - [Technologies](#technologies)
 - [Contributing](#contributing)
-- [License](#license)
-- [Getting Started](#getting-started)
+- [Features Documentation and Guides](#features-documentation-and-guides)
   - [Reference Documentation](#reference-documentation)
   - [Guides](#guides)
+- [License](#license)
+
+## Key Features
+
+The E-commerce RESTful API includes the following features:
+
+### Spring Security and JWT Configuration Features:
+
+- SecurityConfiguration - Configures the security of a Spring Boot application using Spring Security. Provides a
+  SecurityFilterChain bean to configure various security-related aspects of the application. Enables Spring Security
+  module with @EnableWebSecurity annotation and sets up global method security with @EnableGlobalMethodSecurity
+  annotation.
+- JWTAccessDeniedHandler - Handles access denied errors that occur when a client tries to access a protected resource
+  without proper authorization. Implements the AccessDeniedHandler interface from Spring Security.
+- JWTAuthenticationEntryPoint - Handles authentication exceptions that occur when an unauthenticated user tries to
+  access a protected resource. Extends the Http403ForbiddenEntryPoint class from Spring Security.
+- JWTAuthorizationFilter - Validates the JWT token sent by the client in the Authorization header of the request.
+  Extends the OncePerRequestFilter class. Responsible for setting the authentication in the security context if the JWT
+  is valid.
+- JWTTokenProvider - Generates and validates JWT tokens. Relies on the Auth0 library to create and verify tokens.
+
+### Application Features:
+
+- UserPrincipal class for representing users in the application's security context with necessary information for
+  authentication and authorization purposes.
+- JpaEnversConfiguration class for enabling caching and JPA auditing in a Spring application with Java-based
+  configuration.
+- SpringSecurityAuditorAware class for automatically setting auditing fields in entity classes with the username of the
+  currently authenticated user.
+- ExceptionHandling class for providing centralized handling of exceptions thrown by the application.
+- UserController class for managing user-related operations such as user registration, login, retrieval, update, and
+  deletion.
+- ProductController class for handling products in a store with endpoints for creating, retrieving, and updating
+  products.
+- OrderController class for handling orders in a store with endpoints for creating, retrieving, and updating orders.
+- LoginAttemptService class for keeping track of the number of failed login attempts for a user.
 
 ## Installation
 
@@ -47,27 +85,6 @@ mvn install
 
 To use the API, you can send HTTP requests to the API endpoints using a tool like Postman. The base URL for the API is `http://localhost:8080/api/v1`.
 
-## Features
-
-The E-commerce RESTful API includes the following features:
-
-- User authentication and authorization with access levels in the form of Roles and Authorities
-- User registration and login using OAuth2-Jwt
-- User order history
-- Product categories
-- Product search
-- Product filtering
-- Shopping cart
-- Checkout process
-- Product Pages
-- Admin dashboard (only accessible by authenticated users with admin privileges)
-- Product management (only accessible by authenticated users with admin privileges)
-- User profile management (only accessible by authenticated users with admin privileges)
-- User role management (only accessible by authenticated users with admin privileges)
-- User authority management (only accessible by authenticated users with admin privileges)
-- Order management (only accessible by authenticated users with admin privileges)
-- Category management (only accessible by authenticated users with admin privileges)
-
 ## Technologies
 
 The E-commerce RESTful API was built using the following technologies:
@@ -82,7 +99,7 @@ The E-commerce RESTful API was built using the following technologies:
 - MySQL Docker container
 - Spring Security
 - Apache Maven
-- Validation
+- Spring Validation
 - Lombok
 
 ## Contributing
@@ -95,16 +112,7 @@ If you'd like to contribute to the E-commerce RESTful API, please follow these s
 4. Test your changes
 5. Submit a pull request
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-
-
-
-
-## Getting Started
+## Features Documentation and Guides
 
 ### Reference Documentation
 
@@ -138,4 +146,8 @@ The following guides illustrate how to use some features concretely:
 * [Managing Transactions](https://spring.io/guides/gs/managing-transactions/)
 * [Validation](https://spring.io/guides/gs/validating-form-input/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
