@@ -97,6 +97,20 @@ public class UserController extends ExceptionHandling {
         return jwtTokenProvider.isTokenValid(request.getHeader("Email"), token);
     }
 
+    @GetMapping("/{userId}")
+    @PreAuthorize("!hasAnyRole('ROLE_GUEST')")
+    public ResponseEntity<HttpResponse> getUserByUserId(@PathVariable("userId") String userId) throws UserNotFoundException {
+        User user = userService.findUserByUserId(userId);
+        return ResponseEntity.ok(HttpResponse.builder()
+                .timeStamp(new Date())
+                .data(Map.of("user", user))
+                .message("User retrieved successfully")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+
     @GetMapping("/email/{email}")
     @PreAuthorize("!hasAnyRole('ROLE_GUEST')")
     public ResponseEntity<HttpResponse> findUserByEmail(@PathVariable("email") String email) throws UserNotFoundException {
@@ -130,6 +144,58 @@ public class UserController extends ExceptionHandling {
 //        ObjectMapper objectMapper = new ObjectMapper();
 //        User newUser = objectMapper.readValue(user, User.class);
         User updated = userService.update(user, originalEmail);
+        return ResponseEntity.ok(HttpResponse.builder()
+                .timeStamp(new Date())
+                .data(Map.of("user", updated))
+                .message("User updated successfully")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @PutMapping("/{userId}/first-name")
+    @PreAuthorize("!hasRole('ROLE_GUEST')")
+    public ResponseEntity<HttpResponse> updateFirstName(@PathVariable("userId") String userId, @RequestBody String firstName) throws UserNotFoundException {
+        User updated = userService.updateFirstName(userId, firstName);
+        return ResponseEntity.ok(HttpResponse.builder()
+                .timeStamp(new Date())
+                .data(Map.of("user", updated))
+                .message("User updated successfully")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @PutMapping("/{userId}/last-name")
+    @PreAuthorize("!hasRole('ROLE_GUEST')")
+    public ResponseEntity<HttpResponse> updateLastName(@PathVariable("userId") String userId, @RequestBody String lastName) throws UserNotFoundException {
+        User updated = userService.updateLastName(userId, lastName);
+        return ResponseEntity.ok(HttpResponse.builder()
+                .timeStamp(new Date())
+                .data(Map.of("user", updated))
+                .message("User updated successfully")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @PutMapping("/{userId}/phone-number")
+    @PreAuthorize("!hasRole('ROLE_GUEST')")
+    public ResponseEntity<HttpResponse> updatePhoneNumber(@PathVariable("userId") String userId, @RequestBody String phoneNumber) throws UserNotFoundException {
+        User updated = userService.updatePhoneNumber(userId, phoneNumber);
+        return ResponseEntity.ok(HttpResponse.builder()
+                .timeStamp(new Date())
+                .data(Map.of("user", updated))
+                .message("User updated successfully")
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .build());
+    }
+
+    @PutMapping("/{userId}/address")
+    @PreAuthorize("!hasRole('ROLE_GUEST')")
+    public ResponseEntity<HttpResponse> updateAddress(@PathVariable("userId") String userId, @RequestBody String address) throws UserNotFoundException {
+        User updated = userService.updateAddress(userId, address);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
                 .data(Map.of("user", updated))
@@ -180,13 +246,12 @@ public class UserController extends ExceptionHandling {
                 .build());
     }
 
-    @PostMapping("/update-email")
+    @PutMapping("/update-email")
     @PreAuthorize("#userPrincipal.email == #email or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN','ROLE_SUPER_ADMIN')")
     public ResponseEntity<HttpResponse> updateEmail(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                     @RequestParam @NotBlank String email,
-                                                    @RequestParam @NotBlank String currentPassword,
-                                                    @RequestParam @NotBlank String newEmail) throws EmailExistException, PasswordNotMatchException, UserNotFoundException {
-        userService.updateEmail(email, currentPassword, newEmail);
+                                                    @RequestParam @NotBlank String newEmail) throws EmailExistException, UserNotFoundException {
+        userService.updateEmail(email, newEmail);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
                 .message("Email updated successfully")
