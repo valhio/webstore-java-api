@@ -28,8 +28,6 @@ public interface UserService {
 
     User updatePassword(String username, String currentPassword, String newPassword) throws PasswordNotMatchException, UserNotFoundException;
 
-    User updateEmail(String username, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException;
-
     Role getUserRole(String username) throws UserNotFoundException;
 
     Collection<User> getUsersByRole(String role) throws UserNotFoundException;
@@ -37,6 +35,16 @@ public interface UserService {
     Collection<String> getUserAuthorities(String username) throws UserNotFoundException;
 
     void validateEmailExists(String email) throws EmailExistException;
+
+    User updateFirstName(String userId, String firstName) throws UserNotFoundException;
+
+    User updateLastName(String userId, String lastName) throws UserNotFoundException;
+
+    User updateEmail(String username, String newEmail) throws EmailExistException, UserNotFoundException;
+
+    User updatePhoneNumber(String userId, String phoneNumber) throws UserNotFoundException;
+
+    User updateAddress(String userId, String address) throws UserNotFoundException;
 
 //    void AddRoleToUser(String username, String role);
 //

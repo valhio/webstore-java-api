@@ -152,10 +152,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User updateEmail(String email, String currentPassword, String newEmail) throws PasswordNotMatchException, EmailExistException, UserNotFoundException {
+    public User updateEmail(String email, String newEmail) throws EmailExistException, UserNotFoundException {
         User user = this.findUserByEmail(email);
-        if (!passwordEncoder.matches(currentPassword, user.getPassword()))
-            throw new PasswordNotMatchException(INCORRECT_CURRENT_PASSWORD);
         validateEmailExists(newEmail);
         user.setEmail(newEmail);
         return userRepository.save(user);
@@ -185,6 +183,34 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (userRepository.existsByEmail(email)) {
             throw new EmailExistException(EMAIL_ALREADY_EXISTS);
         }
+    }
+
+    @Override
+    public User updateFirstName(String userId, String firstName) throws UserNotFoundException {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException(NO_USER_FOUND_BY_USER_ID + userId));
+        user.setFirstName(firstName);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateLastName(String userId, String lastName) throws UserNotFoundException {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException(NO_USER_FOUND_BY_USER_ID + userId));
+        user.setLastName(lastName);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updatePhoneNumber(String userId, String phone) throws UserNotFoundException {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException(NO_USER_FOUND_BY_USER_ID + userId));
+        user.setPhone(phone);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateAddress(String userId, String address) throws UserNotFoundException {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException(NO_USER_FOUND_BY_USER_ID + userId));
+        user.setAddress(address);
+        return userRepository.save(user);
     }
 
     private String encodePassword(String password) {

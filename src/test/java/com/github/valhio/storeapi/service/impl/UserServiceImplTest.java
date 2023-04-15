@@ -497,7 +497,7 @@ class UserServiceImplTest {
 
         @Test
         @DisplayName("Should update email successfully")
-        void testUpdateEmail() throws UserNotFoundException, EmailExistException, PasswordNotMatchException {
+        void testUpdateEmail() throws UserNotFoundException, EmailExistException {
             User user = new User();
             user.setUserId("1");
             user.setEmail("leeroy");
@@ -506,11 +506,10 @@ class UserServiceImplTest {
             user.setAuthorities(Role.ROLE_USER.getAuthorities());
 
             when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
-            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
             when(userRepository.existsByEmail(anyString())).thenReturn(false);
             when(userRepository.save(any(User.class))).thenReturn(user);
 
-            User response = userService.updateEmail(user.getEmail(), user.getPassword(), "newEmail");
+            User response = userService.updateEmail(user.getEmail(), "newEmail");
 
             assertEquals(user, response);
             assertEquals("newEmail", response.getEmail());
@@ -531,7 +530,7 @@ class UserServiceImplTest {
             when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
             assertThrows(UserNotFoundException.class, () -> {
-                userService.updateEmail(user.getUserId(), user.getPassword(), "newEmail");
+                userService.updateEmail(user.getUserId(), "newEmail");
             });
 
             verify(userRepository, times(1)).findByEmail(anyString());
@@ -549,36 +548,13 @@ class UserServiceImplTest {
             user.setAuthorities(Role.ROLE_USER.getAuthorities());
 
             when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
-            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
             when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
             assertThrows(EmailExistException.class, () -> {
-                userService.updateEmail(user.getUserId(), user.getPassword(), "newEmail");
+                userService.updateEmail(user.getUserId(), "newEmail");
             });
 
             verify(userRepository, times(1)).findByEmail(anyString());
-            verify(userRepository, never()).save(any(User.class));
-        }
-
-        @Test
-        @DisplayName("Test update email should throw PasswordNotMatchException when password does not match")
-        void testUpdateEmailShouldThrowWhenPasswordDoesNotMatch() throws UserNotFoundException {
-            User user = new User();
-            user.setUserId("1");
-            user.setEmail("leeroy");
-            user.setPassword("password");
-            user.setRole(Role.ROLE_USER);
-            user.setAuthorities(Role.ROLE_USER.getAuthorities());
-
-            when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
-            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
-
-            assertThrows(PasswordNotMatchException.class, () -> {
-                userService.updateEmail(user.getUserId(), user.getPassword(), "newEmail");
-            });
-
-            verify(userRepository, times(1)).findByEmail(anyString());
-            verify(passwordEncoder, times(1)).matches(anyString(), anyString());
             verify(userRepository, never()).save(any(User.class));
         }
     }
@@ -717,6 +693,186 @@ class UserServiceImplTest {
             });
 
             verify(userRepository, times(1)).findAllByRole(any(Role.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Test update user's first name")
+    class UpdateFirstName {
+        @Test
+        @DisplayName("Should update user's first name successfully")
+        void testUpdateFirstName() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.of(user));
+            when(userRepository.save(any(User.class))).thenReturn(user);
+
+            User response = userService.updateFirstName(user.getEmail(), "newFirstName");
+
+            assertEquals(user, response);
+            assertEquals("newFirstName", response.getFirstName());
+            verify(userRepository, times(1)).findByUserId(anyString());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update user's first name should throw UserNotFoundException when user is not found")
+        void testUpdateFirstNameShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.updateFirstName(user.getEmail(), "newFirstName");
+            });
+
+            verify(userRepository, times(1)).findByUserId(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Test update user's last name")
+    class UpdateLastName {
+        @Test
+        @DisplayName("Should update user's last name successfully")
+        void testUpdateLastName() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.of(user));
+            when(userRepository.save(any(User.class))).thenReturn(user);
+
+            User response = userService.updateLastName(user.getEmail(), "newLastName");
+
+            assertEquals(user, response);
+            assertEquals("newLastName", response.getLastName());
+            verify(userRepository, times(1)).findByUserId(anyString());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update user's last name should throw UserNotFoundException when user is not found")
+        void testUpdateLastNameShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.updateLastName(user.getEmail(), "newLastName");
+            });
+
+            verify(userRepository, times(1)).findByUserId(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Test update user's phone number")
+    class UpdatePhoneNumber {
+        @Test
+        @DisplayName("Should update user's phone number successfully")
+        void testUpdatePhoneNumber() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.of(user));
+            when(userRepository.save(any(User.class))).thenReturn(user);
+
+            User response = userService.updatePhoneNumber(user.getEmail(), "newPhoneNumber");
+
+            assertEquals(user, response);
+            assertEquals("newPhoneNumber", response.getPhone());
+            verify(userRepository, times(1)).findByUserId(anyString());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update user's phone number should throw UserNotFoundException when user is not found")
+        void testUpdatePhoneNumberShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.updatePhoneNumber(user.getEmail(), "newPhoneNumber");
+            });
+
+            verify(userRepository, times(1)).findByUserId(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Test update user's address")
+    class UpdateAddress {
+        @Test
+        @DisplayName("Should update user's address successfully")
+        void testUpdateAddress() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.of(user));
+            when(userRepository.save(any(User.class))).thenReturn(user);
+
+            User response = userService.updateAddress(user.getEmail(), "newAddress");
+
+            assertEquals(user, response);
+            assertEquals("newAddress", response.getAddress());
+            verify(userRepository, times(1)).findByUserId(anyString());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Test update user's address should throw UserNotFoundException when user is not found")
+        void testUpdateAddressShouldThrowWhenUserNotFound() throws UserNotFoundException {
+            User user = new User();
+            user.setUserId("1");
+            user.setEmail("leeroy");
+            user.setPassword("password");
+            user.setRole(Role.ROLE_USER);
+            user.setAuthorities(Role.ROLE_USER.getAuthorities());
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> {
+                userService.updateAddress(user.getEmail(), "newAddress");
+            });
+
+            verify(userRepository, times(1)).findByUserId(anyString());
+            verify(userRepository, never()).save(any(User.class));
         }
     }
 }
