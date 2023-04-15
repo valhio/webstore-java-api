@@ -9,7 +9,7 @@ spring:
   jackson:
     default-property-inclusion: non_null
   datasource:
-    url: jdbc:mysql://localhost:3306/store?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/store
     username: root
     password: 1234
   jpa:
