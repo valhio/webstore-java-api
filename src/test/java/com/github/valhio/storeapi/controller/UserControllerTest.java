@@ -596,16 +596,16 @@ class UserControllerTest {
             user.setRole(Role.ROLE_ADMIN);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
+            when(userService.updateEmail(any(), any())).thenReturn(new User());
 
-            mockMvc.perform(post("/api/v1/user/update-email")
+            mockMvc.perform(put("/api/v1/user/update-email")
                             .param("email", "emailThatDoesNotMatch")
                             .param("currentPassword", "password")
                             .param("newEmail", "newEmail")
                             .with(user(authenticatedUser)))
                     .andExpect(status().isOk());
 
-            verify(userService, times(1)).updateEmail(any(), any(), any());
+            verify(userService, times(1)).updateEmail(any(), any());
         }
 
         @Test
@@ -616,16 +616,16 @@ class UserControllerTest {
             user.setRole(Role.ROLE_MANAGER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
+            when(userService.updateEmail(any(), any())).thenReturn(new User());
 
-            mockMvc.perform(post("/api/v1/user/update-email")
+            mockMvc.perform(put("/api/v1/user/update-email")
                             .param("email", "emailThatDoesNotMatch")
                             .param("currentPassword", "password")
                             .param("newEmail", "newEmail")
                             .with(user(authenticatedUser)))
                     .andExpect(status().isOk());
 
-            verify(userService, times(1)).updateEmail(any(), any(), any());
+            verify(userService, times(1)).updateEmail(any(), any());
         }
 
         @Test
@@ -636,16 +636,16 @@ class UserControllerTest {
             user.setRole(Role.ROLE_SUPER_ADMIN);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
+            when(userService.updateEmail(any(), any())).thenReturn(new User());
 
-            mockMvc.perform(post("/api/v1/user/update-email")
+            mockMvc.perform(put("/api/v1/user/update-email")
                             .param("email", "emailThatDoesNotMatch")
                             .param("currentPassword", "password")
                             .param("newEmail", "newEmail")
                             .with(user(authenticatedUser)))
                     .andExpect(status().isOk());
 
-            verify(userService, times(1)).updateEmail(any(), any(), any());
+            verify(userService, times(1)).updateEmail(any(), any());
         }
 
         @Test
@@ -656,16 +656,16 @@ class UserControllerTest {
             user.setRole(Role.ROLE_USER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
+            when(userService.updateEmail(any(), any())).thenReturn(new User());
 
-            mockMvc.perform(post("/api/v1/user/update-email")
+            mockMvc.perform(put("/api/v1/user/update-email")
                             .param("email", user.getEmail())
                             .param("currentPassword", "password")
                             .param("newEmail", "newEmail")
                             .with(user(authenticatedUser)))
                     .andExpect(status().isOk());
 
-            verify(userService, times(1)).updateEmail(any(), any(), any());
+            verify(userService, times(1)).updateEmail(any(), any());
         }
 
         @Test
@@ -676,9 +676,9 @@ class UserControllerTest {
             user.setRole(Role.ROLE_USER);
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
-            when(userService.updateEmail(any(), any(), any())).thenReturn(new User());
+            when(userService.updateEmail(any(), any())).thenReturn(new User());
 
-            mockMvc.perform(post("/api/v1/user/update-email")
+            mockMvc.perform(put("/api/v1/user/update-email")
                             .param("email", "someEmailThatDoesNotMatch")
                             .param("currentPassword", "password")
                             .param("newEmail", "newEmail")
@@ -686,7 +686,7 @@ class UserControllerTest {
                     )
                     .andExpect(status().isUnauthorized());
 
-            verify(userService, times(0)).updateEmail(any(), any(), any());
+            verify(userService, times(0)).updateEmail(any(), any());
         }
     }
 
@@ -874,4 +874,238 @@ class UserControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("Get user by userId")
+    class getByUserId {
+
+        @Test
+        @DisplayName("Should return user when user")
+        void shouldReturnUser() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_ADMIN);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.findUserByUserId(any())).thenReturn(user);
+
+            mockMvc.perform(get("/api/v1/user/{userId}", user.getUserId())
+                            .with(user(authenticatedUser)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.user.userId", is(user.getUserId())))
+                    .andExpect(jsonPath("$.data.user.email", is(user.getEmail())));
+
+            verify(userService, times(1)).findUserByUserId(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Update user's first name")
+    class UpdateUserFirstName {
+
+        @Test
+        @DisplayName("Should update user's first name when user has authorities MANAGER")
+        void shouldUpdateUserFirstNameWhenUserHasManagerRole() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setFirstName("Leeroy");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            User expected = new User();
+            expected.setUserId("123");
+            expected.setFirstName("newFirstName");
+
+            when(userService.updateFirstName(any(), any())).thenReturn(expected);
+
+            mockMvc.perform(put("/api/v1/user/{userId}/first-name", user.getUserId())
+                            .with(user(authenticatedUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("newFirstName"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.user.firstName", is(expected.getFirstName())));
+
+            verify(userService, times(1)).updateFirstName(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should throw UserNotFoundException when user does not exist")
+        void shouldThrowWhenUserNotFound() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setFirstName("Leeroy");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.updateFirstName(any(), any())).thenThrow(UserNotFoundException.class);
+
+            mockMvc.perform(put("/api/v1/user/{userId}/first-name", user.getUserId())
+                            .with(user(authenticatedUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("newFirstName"))
+                    .andExpect(status().isNotFound());
+
+            verify(userService, times(1)).updateFirstName(any(), any());
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Update user's last name")
+    class UpdateUserLastName {
+
+        @Test
+        @DisplayName("Should update user's last name when user has authorities MANAGER")
+        void shouldUpdateUserLastNameWhenUserHasManagerRole() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setLastName("Jenkins");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            User expected = new User();
+            expected.setUserId("123");
+            expected.setLastName("newLastName");
+
+            when(userService.updateLastName(any(), any())).thenReturn(expected);
+
+            mockMvc.perform(put("/api/v1/user/{userId}/last-name", user.getUserId())
+                            .with(user(authenticatedUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(expected.getLastName()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.user.lastName", is(expected.getLastName())));
+
+            verify(userService, times(1)).updateLastName(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should throw UserNotFoundException when user does not exist")
+        void shouldThrowWhenUserNotFound() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setLastName("Jenkins");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.updateLastName(any(), any())).thenThrow(UserNotFoundException.class);
+
+            mockMvc.perform(put("/api/v1/user/{userId}/last-name", user.getUserId())
+                            .with(user(authenticatedUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("newLastName"))
+                    .andExpect(status().isNotFound());
+
+            verify(userService, times(1)).updateLastName(any(), any());
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Update user's phone number")
+    class UpdatePhoneNumber {
+        @Test
+        @DisplayName("Should update user's phone number")
+        void shouldUpdateUserPhoneNumber() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setPhone("1234567890");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            User expected = new User();
+            expected.setUserId("123");
+            expected.setPhone("0987654321");
+
+            when(userService.updatePhoneNumber(any(), any())).thenReturn(expected);
+
+            mockMvc.perform(put("/api/v1/user/{userId}/phone-number", user.getUserId())
+                            .with(user(authenticatedUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(expected.getPhone()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.user.phone", is(expected.getPhone())));
+
+            verify(userService, times(1)).updatePhoneNumber(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should throw UserNotFoundException when user does not exist")
+        void shouldThrowWhenUserNotFound() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setPhone("1234567890");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.updatePhoneNumber(any(), any())).thenThrow(UserNotFoundException.class);
+
+            mockMvc.perform(put("/api/v1/user/{userId}/phone-number", user.getUserId())
+                            .with(user(authenticatedUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("0987654321"))
+                    .andExpect(status().isNotFound());
+
+            verify(userService, times(1)).updatePhoneNumber(any(), any());
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Update user's address")
+    class UpdateAddress {
+        @Test
+        @DisplayName("Should update user's address")
+        void shouldUpdateUserPhoneNumber() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setAddress("123 Main St");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            User expected = new User();
+            expected.setUserId("123");
+            expected.setAddress("newAddress");
+
+            when(userService.updateAddress(any(), any())).thenReturn(expected);
+
+            mockMvc.perform(put("/api/v1/user/{userId}/address", user.getUserId())
+                            .with(user(authenticatedUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(expected.getAddress()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.user.address", is(expected.getAddress())));
+
+            verify(userService, times(1)).updateAddress(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should throw UserNotFoundException when user does not exist")
+        void shouldThrowWhenUserNotFound() throws Exception {
+            User user = new User();
+            user.setUserId("123");
+            user.setAddress("123 Main St");
+            user.setEmail("leeroy@jenkins");
+            user.setRole(Role.ROLE_MANAGER);
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            when(userService.updateAddress(any(), any())).thenThrow(UserNotFoundException.class);
+
+            mockMvc.perform(put("/api/v1/user/{userId}/address", user.getUserId())
+                            .with(user(authenticatedUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("newAddress"))
+                    .andExpect(status().isNotFound());
+
+            verify(userService, times(1)).updateAddress(any(), any());
+        }
+
+    }
 }
