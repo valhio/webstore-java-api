@@ -1,3 +1,5 @@
+[![Java CI with Maven](https://github.com/valhio/webstore-java-api/actions/workflows/maven.yml/badge.svg)](https://github.com/valhio/webstore-java-api/actions/workflows/maven.yml)
+
 # E-commerce RESTful API
 
 This is an e-commerce RESTful API built using Java, Spring Boot, Spring Web, Spring Data JPA, Spring MVC, Spring
