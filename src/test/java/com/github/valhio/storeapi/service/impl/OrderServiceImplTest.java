@@ -3,11 +3,9 @@ package com.github.valhio.storeapi.service.impl;
 import com.github.valhio.storeapi.exception.domain.OrderNotFoundException;
 import com.github.valhio.storeapi.exception.domain.ProductNotFoundException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
-import com.github.valhio.storeapi.model.Order;
-import com.github.valhio.storeapi.model.OrderItem;
-import com.github.valhio.storeapi.model.Product;
-import com.github.valhio.storeapi.model.User;
+import com.github.valhio.storeapi.model.*;
 import com.github.valhio.storeapi.repository.OrderRepository;
+import com.github.valhio.storeapi.service.InvoiceService;
 import com.github.valhio.storeapi.service.ProductService;
 import com.github.valhio.storeapi.service.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +30,8 @@ class OrderServiceImplTest {
     private OrderRepository repository;
     @Mock
     private UserService userService;
+    @Mock
+    private InvoiceService invoiceService;
     @Mock
     private ProductService productService;
 
@@ -109,9 +109,13 @@ class OrderServiceImplTest {
         void testCreateOrderWithNullUserId() throws UserNotFoundException {
             Order order = new Order();
             order.setOrderItems(Collections.emptyList());
+
+            when(invoiceService.createInvoiceFromOrder(order)).thenReturn(new Invoice());
             when(repository.save(order)).thenReturn(order);
+
             Order result = orderService.createOrder(order, null);
             assertEquals(order, result);
+            verify(invoiceService, times(1)).createInvoiceFromOrder(order);
             verify(repository).save(order);
             verifyNoInteractions(userService, productService);
         }
@@ -122,10 +126,14 @@ class OrderServiceImplTest {
             User user = new User();
             Order order = new Order();
             order.setOrderItems(Collections.emptyList());
+
             when(userService.findUserByUserId("userId")).thenReturn(user);
+            when(invoiceService.createInvoiceFromOrder(order)).thenReturn(new Invoice());
             when(repository.save(order)).thenReturn(order);
+
             Order result = orderService.createOrder(order, "userId");
             assertEquals(order, result);
+            verify(invoiceService, times(1)).createInvoiceFromOrder(order);
             verify(repository).save(order);
             verify(userService).findUserByUserId("userId");
             verifyNoMoreInteractions(userService, productService);
@@ -140,11 +148,14 @@ class OrderServiceImplTest {
             orderItem.setQuantity(10);
             Order order = new Order();
             order.setOrderItems(Collections.singletonList(orderItem));
+
+            when(invoiceService.createInvoiceFromOrder(order)).thenReturn(new Invoice());
             when(userService.findUserByUserId("userId")).thenReturn(new User());
             doThrow(new ProductNotFoundException("Product not found")).when(productService).removeQuantity(product.getId(), orderItem.getQuantity());
 
             orderService.createOrder(order, "userId");
 
+            verify(invoiceService, times(1)).createInvoiceFromOrder(order);
             verify(userService).findUserByUserId("userId");
             verify(productService).removeQuantity(product.getId(), orderItem.getQuantity());
             verifyNoMoreInteractions(userService, productService);
