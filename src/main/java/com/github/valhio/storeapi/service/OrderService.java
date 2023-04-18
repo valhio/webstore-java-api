@@ -19,4 +19,6 @@ public interface OrderService {
     Order findById(Long id) throws OrderNotFoundException;
 
     Order updateOrder(Order order);
+
+    Order findByOrderNumber(String orderNumber) throws OrderNotFoundException;
 }

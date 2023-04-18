@@ -73,4 +73,9 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
+    @Override
+    public Order findByOrderNumber(String orderNumber) throws OrderNotFoundException {
+        return repository.findByOrderNumber(orderNumber).orElseThrow(() -> new OrderNotFoundException("Order not found"));
+    }
+
 }
