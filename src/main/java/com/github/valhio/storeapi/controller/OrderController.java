@@ -18,12 +18,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /*
@@ -134,6 +137,26 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         return ResponseEntity.ok(order);
+    }
+
+    @GetMapping("/{orderNumber}")
+//    @PreAuthorize("@orderController.getOrderByOrderNumber(#orderNumber).getUser().getEmail() == authentication.principal.email or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
+    public ResponseEntity<Order> getOrderByOrderNumber(@AuthenticationPrincipal UserPrincipal auth, @PathVariable String orderNumber, HttpServletRequest request) throws OrderNotFoundException {
+        Order order = orderService.findByOrderNumber(orderNumber);
+        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+
+        // Return order if user is admin, super admin, or manager
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                || authorities.contains(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"))
+                || authorities.contains(new SimpleGrantedAuthority("ROLE_MANAGER")))
+            return ResponseEntity.ok(order);
+
+        if (order.getUser().getEmail().equals(auth.getEmail()))
+            // Return order if authenticated user is the owner of the order
+            return ResponseEntity.ok(order);
+
+        // Return unauthorized if authenticated user is not the owner of the order
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PutMapping("/{orderId}/status/{status}")
