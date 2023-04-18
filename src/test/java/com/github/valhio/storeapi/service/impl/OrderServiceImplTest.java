@@ -181,5 +181,35 @@ class OrderServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("Test find order by order number")
+    class TestFindOrderByOrderNumber {
+
+        @Test
+        @DisplayName("Test find order by order number with valid order number")
+        void testFindOrderByOrderNumberWithValidOrderNumber() throws OrderNotFoundException {
+            Order order = new Order();
+            when(repository.findByOrderNumber("orderNumber")).thenReturn(java.util.Optional.of(order));
+
+            Order result = orderService.findByOrderNumber("orderNumber");
+
+            assertEquals(order, result);
+            verify(repository).findByOrderNumber("orderNumber");
+            verifyNoMoreInteractions(repository);
+        }
+
+        @Test
+        @DisplayName("Test find order by order number throws OrderNotFoundException when not found")
+        void testFindOrderByOrderNumberWithInvalidOrderNumber() {
+            when(repository.findByOrderNumber("orderNumber")).thenReturn(java.util.Optional.empty());
+
+            OrderNotFoundException orderNotFoundException = assertThrows(OrderNotFoundException.class, () -> orderService.findByOrderNumber("orderNumber"));
+
+            assertEquals("Order not found", orderNotFoundException.getMessage());
+            verify(repository).findByOrderNumber("orderNumber");
+            verifyNoMoreInteractions(repository);
+        }
+    }
+
 
 }
