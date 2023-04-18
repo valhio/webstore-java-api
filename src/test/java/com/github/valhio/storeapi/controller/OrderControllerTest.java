@@ -714,4 +714,152 @@ class OrderControllerTest {
             verify(orderService, times(0)).updateOrder(any());
         }
     }
+
+    @Nested
+    @DisplayName("Find order by order number")
+    class FindOrderByOrderNumber {
+        @Test
+        @DisplayName("Should return 200 if the users's email is same as the order's auth-user's email")
+        void shouldReturn200IfUserHasReadAuthority() throws Exception {
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_USER);
+            user.setEmail("foo@bar");
+            user.setPassword("password");
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+            Order order2 = new Order();
+            order2.setUser(user);
+            order2.setOrderId("123456");
+            // When
+            when(orderService.findByOrderNumber(any())).thenReturn(order2);
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/{orderNumber}", order2.getOrderId())
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+
+            verify(orderService, times(1)).findByOrderNumber(any());
+        }
+
+        @Test
+        @DisplayName("Should return 401 Unauthorized if the auth user's email is not same as the order's user's email")
+        void shouldReturn401WhenUserEmailDoesNotMatchOrderUserEmail() throws Exception {
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_USER);
+            user.setEmail("foo@bar");
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            User orderUser = new User();
+            orderUser.setEmail("not@same");
+            order.setUser(orderUser);
+            order.setOrderId("123456");
+
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
+
+            mockMvc.perform(get("/api/v1/orders/{orderNumber}", order.getOrderId())
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isUnauthorized());
+
+            verify(orderService, times(1)).findByOrderNumber(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if the user has MANAGER role and his email is not same as the order's user's email")
+        void shouldReturn200IfUserHasManagerRole() throws Exception {
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_MANAGER);
+            user.setEmail("foo@bar");
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            User orderUser = new User();
+            orderUser.setEmail("not@same");
+            order.setUser(orderUser);
+            order.setOrderId("123456");
+
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
+
+            mockMvc.perform(get("/api/v1/orders/{orderNumber}", order.getOrderId())
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+
+            verify(orderService, times(1)).findByOrderNumber(any());
+        }
+
+
+        @Test
+        @DisplayName("Should return 200 if the user has ADMIN role and his email is not same as the order's user's email")
+        void shouldReturn200IfUserHasAdminRole() throws Exception {
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_ADMIN);
+            user.setEmail("foo@bar");
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            User orderUser = new User();
+            orderUser.setEmail("not@same");
+            order.setUser(orderUser);
+            order.setOrderId("123456");
+
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
+
+            mockMvc.perform(get("/api/v1/orders/{orderNumber}", order.getOrderId())
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+
+            verify(orderService, times(1)).findByOrderNumber(any());
+        }
+
+        @Test
+        @DisplayName("Should return 200 if the user has SUPER_ADMIN role and his email is not same as the order's user's email")
+        void shouldReturn200IfUserHasSuperAdminRole() throws Exception {
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_SUPER_ADMIN);
+            user.setEmail("foo@bar");
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            User orderUser = new User();
+            orderUser.setEmail("not@same");
+            order.setUser(orderUser);
+            order.setOrderId("123456");
+
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
+
+            mockMvc.perform(get("/api/v1/orders/{orderNumber}", order.getOrderId())
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+
+            verify(orderService, times(1)).findByOrderNumber(any());
+        }
+
+        @Test
+        @DisplayName("Should return 404 if the order does not exist")
+        void shouldReturn404IfOrderDoesNotExist() throws Exception {
+            User user = new User();
+            user.setAuthorities(new String[]{"READ"});
+            user.setRole(Role.ROLE_USER);
+            user.setEmail("foo@bar");
+            user.setPassword("password");
+            UserPrincipal authenticatedUser = new UserPrincipal(user);
+
+            // When
+            when(orderService.findByOrderNumber(any())).thenThrow(new OrderNotFoundException("Order not found"));
+
+            // Then
+            mockMvc.perform(get("/api/v1/orders/{orderNumber}", "123456")
+                            .with(user(authenticatedUser)))
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+
+            verify(orderService, times(1)).findByOrderNumber(any());
+        }
+
+    }
 }
