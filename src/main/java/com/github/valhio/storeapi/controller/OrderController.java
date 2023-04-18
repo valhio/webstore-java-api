@@ -162,7 +162,7 @@ public class OrderController {
     @PutMapping("/{orderId}/status/{status}")
     @PreAuthorize("hasAnyAuthority('UPDATE') or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable String orderId, @PathVariable String status, HttpServletRequest request) throws OrderNotFoundException {
-        Order order = orderService.findById(Long.parseLong(orderId));
+        Order order = orderService.findByOrderNumber(orderId);
         order.setOrderStatus(OrderStatus.valueOf(status));
         return ResponseEntity.ok(orderService.updateOrder(order));
     }
@@ -170,7 +170,7 @@ public class OrderController {
     @PutMapping("/{orderId}/orderItem/{itemId}/status/{status}")
     @PreAuthorize("hasAnyAuthority('UPDATE') or hasAnyRole('ROLE_MANAGER','ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
     public ResponseEntity<Order> updateOrderItemStatus(@PathVariable String orderId, @PathVariable String itemId, @PathVariable String status, HttpServletRequest request) throws OrderNotFoundException, OrderItemNotFoundException {
-        Order order = orderService.findById(Long.parseLong(orderId));
+        Order order = orderService.findByOrderNumber(orderId);
         OrderItem orderItem = order.getOrderItems()
                 .stream()
                 .filter(item -> item.getId().equals(Long.parseLong(itemId)))
