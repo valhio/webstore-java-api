@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
 
@@ -49,11 +48,11 @@ public class ExceptionHandling {
 
 
     //     Default exception handler
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<HttpResponse> internalServerErrorException(Exception exception) {
-        log.error(exception.getMessage());
-        return createHttpResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<HttpResponse> internalServerErrorException(Exception exception) {
+//        log.error(exception.getMessage());
+//        return createHttpResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG);
+//    }
 
 //    @ExceptionHandler(NoHandlerFoundException.class)
 //    public ResponseEntity<HttpResponse> noHandlerFoundException(NoHandlerFoundException e) {
@@ -100,6 +99,11 @@ public class ExceptionHandling {
         return createHttpResponse(NOT_FOUND, e.getMessage());
     }
 
+    @ExceptionHandler(InvoiceNotFoundException.class)
+    public ResponseEntity<HttpResponse> invoiceNotFoundException(InvoiceNotFoundException e) {
+        return createHttpResponse(NOT_FOUND, e.getMessage());
+    }
+
     @ExceptionHandler(MissingServletRequestPartException.class)
     // This exception is thrown when a required part of a multipart request is missing.
     public ResponseEntity<HttpResponse> missingServletRequestPartException(MissingServletRequestPartException e) {
@@ -112,11 +116,11 @@ public class ExceptionHandling {
         return createHttpResponse(METHOD_NOT_ALLOWED, String.format(METHOD_IS_NOT_ALLOWED, supportedMethod));
     }
 
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<HttpResponse> iOException(IOException exception) {
-        log.error(exception.getMessage());
-        return createHttpResponse(INTERNAL_SERVER_ERROR, ERROR_PROCESSING_FILE);
-    }
+//    @ExceptionHandler(IOException.class)
+//    public ResponseEntity<HttpResponse> iOException(IOException exception) {
+//        log.error(exception.getMessage());
+//        return createHttpResponse(INTERNAL_SERVER_ERROR, ERROR_PROCESSING_FILE);
+//    }
 
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message) {
         HttpResponse build = HttpResponse.builder()
