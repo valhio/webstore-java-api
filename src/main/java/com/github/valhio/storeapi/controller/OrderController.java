@@ -101,7 +101,7 @@ public class OrderController {
         order.setProductsTotal(orderRequest.getProductsTotal());
         order.setDeliveryFee(orderRequest.getDeliveryFee());
         order.setDiscount(orderRequest.getDiscount());
-        order.setTotalAmount(orderRequest.getTotalAmount());
+        order.setTotalAmount((order.getProductsTotal() + order.getDeliveryFee()) - order.getDiscount());
         order.setOrderStatus(OrderStatus.ORDER_PLACED);
         order.setOrderDate(LocalDateTime.now());
         Order newOrder = orderService.createOrder(order, orderRequest.getUserId());
