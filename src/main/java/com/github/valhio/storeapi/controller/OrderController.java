@@ -121,7 +121,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.findAllByEmail(email));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Order> getOrderById(@AuthenticationPrincipal UserPrincipal auth, @PathVariable Long id, HttpServletRequest request) throws OrderNotFoundException {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = authorizationHeader.substring(7);
