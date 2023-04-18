@@ -66,9 +66,9 @@ public class Order extends Auditable<String> {
 
     private LocalDateTime deliveredDate;
 
-//    @ManyToOne
-//    @JoinColumn(name = "guest_user_id")
-//    private GuestUser guestUser;
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("order")
+    private Invoice invoice;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
