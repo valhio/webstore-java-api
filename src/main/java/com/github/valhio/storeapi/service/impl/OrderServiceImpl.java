@@ -6,6 +6,7 @@ import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.Order;
 import com.github.valhio.storeapi.model.User;
 import com.github.valhio.storeapi.repository.OrderRepository;
+import com.github.valhio.storeapi.service.InvoiceService;
 import com.github.valhio.storeapi.service.OrderService;
 import com.github.valhio.storeapi.service.ProductService;
 import com.github.valhio.storeapi.service.UserService;
@@ -19,11 +20,13 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository repository;
     private final UserService userService;
     private final ProductService productService;
+    private final InvoiceService invoiceService;
 
-    public OrderServiceImpl(OrderRepository repository, UserService userService, ProductService productService) {
+    public OrderServiceImpl(OrderRepository repository, UserService userService, ProductService productService, InvoiceService invoiceService) {
         this.repository = repository;
         this.userService = userService;
         this.productService = productService;
+        this.invoiceService = invoiceService;
     }
 
     @Override
@@ -40,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
             } catch (ProductNotFoundException ignored) {
             }
         });
+        order.setInvoice(invoiceService.createInvoiceFromOrder(order));
         return repository.save(order);
     }
 
