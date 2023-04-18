@@ -415,7 +415,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -425,7 +425,7 @@ class OrderControllerTest {
                     .andExpect(jsonPath("$.id", is(1)))
                     .andExpect(jsonPath("$.orderStatus", is("PENDING")));
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(1)).updateOrder(any());
         }
 
@@ -439,7 +439,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -449,7 +449,7 @@ class OrderControllerTest {
                     .andExpect(jsonPath("$.id", is(1)))
                     .andExpect(jsonPath("$.orderStatus", is("PENDING")));
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(1)).updateOrder(any());
         }
 
@@ -463,7 +463,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -473,7 +473,7 @@ class OrderControllerTest {
                     .andExpect(jsonPath("$.id", is(1)))
                     .andExpect(jsonPath("$.orderStatus", is("PENDING")));
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(1)).updateOrder(any());
         }
 
@@ -487,7 +487,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -497,7 +497,7 @@ class OrderControllerTest {
                     .andExpect(jsonPath("$.id", is(1)))
                     .andExpect(jsonPath("$.orderStatus", is("PENDING")));
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(1)).updateOrder(any());
         }
 
@@ -511,7 +511,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -519,7 +519,7 @@ class OrderControllerTest {
                             .with(user(authenticatedUser)))
                     .andExpect(status().isUnauthorized());
 
-            verify(orderService, times(0)).findById(any());
+            verify(orderService, times(0)).findByOrderNumber(any());
             verify(orderService, times(0)).updateOrder(any());
         }
 
@@ -533,7 +533,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenThrow(new OrderNotFoundException("Order not found"));
+            when(orderService.findByOrderNumber(any())).thenThrow(new OrderNotFoundException("Order not found"));
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -541,7 +541,7 @@ class OrderControllerTest {
                             .with(user(authenticatedUser)))
                     .andExpect(status().isNotFound());
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(0)).updateOrder(any());
         }
     }
@@ -565,7 +565,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -576,7 +576,7 @@ class OrderControllerTest {
                     .andExpect(jsonPath("$.id", is(1)))
                     .andExpect(jsonPath("$.orderItems[0].status", is("PENDING")));
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(1)).updateOrder(any());
         }
 
@@ -595,7 +595,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -606,7 +606,7 @@ class OrderControllerTest {
                     .andExpect(jsonPath("$.id", is(1)))
                     .andExpect(jsonPath("$.orderItems[0].status", is("PENDING")));
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(1)).updateOrder(any());
         }
 
@@ -625,7 +625,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -636,7 +636,7 @@ class OrderControllerTest {
                     .andExpect(jsonPath("$.id", is(1)))
                     .andExpect(jsonPath("$.orderItems[0].status", is("PENDING")));
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(1)).updateOrder(any());
         }
 
@@ -655,7 +655,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -666,7 +666,7 @@ class OrderControllerTest {
                     .andExpect(jsonPath("$.id", is(1)))
                     .andExpect(jsonPath("$.orderItems[0].status", is("PENDING")));
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(1)).updateOrder(any());
         }
 
@@ -679,7 +679,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenReturn(order);
+            when(orderService.findByOrderNumber(any())).thenReturn(order);
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -688,7 +688,7 @@ class OrderControllerTest {
                     .andDo(print())
                     .andExpect(status().isUnauthorized());
 
-            verify(orderService, times(0)).findById(any());
+            verify(orderService, times(0)).findByOrderNumber(any());
             verify(orderService, times(0)).updateOrder(any());
         }
 
@@ -702,7 +702,7 @@ class OrderControllerTest {
             UserPrincipal authenticatedUser = new UserPrincipal(user);
 
             // When
-            when(orderService.findById(any())).thenThrow(new OrderNotFoundException("Order not found"));
+            when(orderService.findByOrderNumber(any())).thenThrow(new OrderNotFoundException("Order not found"));
             when(orderService.updateOrder(any())).thenReturn(order);
 
             // Then
@@ -710,7 +710,7 @@ class OrderControllerTest {
                             .with(user(authenticatedUser)))
                     .andExpect(status().isNotFound());
 
-            verify(orderService, times(1)).findById(any());
+            verify(orderService, times(1)).findByOrderNumber(any());
             verify(orderService, times(0)).updateOrder(any());
         }
     }
