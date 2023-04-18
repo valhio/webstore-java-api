@@ -72,7 +72,7 @@ public class User extends Auditable<String> {
     private boolean isActive;
 
     @JsonProperty(value = "isNotLocked")
-    private boolean isNotLocked; // Is the user's account verified via email?
+    private boolean isNotLocked;
 
     @Enumerated(EnumType.STRING)
     private Role role;
