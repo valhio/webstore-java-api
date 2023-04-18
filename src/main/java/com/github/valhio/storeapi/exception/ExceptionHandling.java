@@ -47,13 +47,6 @@ public class ExceptionHandling {
     private static final String EMAIL_SEND_ERROR = "There was an error sending email";
 
 
-    //     Default exception handler
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<HttpResponse> internalServerErrorException(Exception exception) {
-//        log.error(exception.getMessage());
-//        return createHttpResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG);
-//    }
-
 //    @ExceptionHandler(NoHandlerFoundException.class)
 //    public ResponseEntity<HttpResponse> noHandlerFoundException(NoHandlerFoundException e) {
 //        return createHttpResponse(BAD_REQUEST, String.format("There is no mapping for this URL %s", e.getRequestURL()));
@@ -116,12 +109,6 @@ public class ExceptionHandling {
         return createHttpResponse(METHOD_NOT_ALLOWED, String.format(METHOD_IS_NOT_ALLOWED, supportedMethod));
     }
 
-//    @ExceptionHandler(IOException.class)
-//    public ResponseEntity<HttpResponse> iOException(IOException exception) {
-//        log.error(exception.getMessage());
-//        return createHttpResponse(INTERNAL_SERVER_ERROR, ERROR_PROCESSING_FILE);
-//    }
-
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message) {
         HttpResponse build = HttpResponse.builder()
                 .statusCode(httpStatus.value())
@@ -133,4 +120,17 @@ public class ExceptionHandling {
 
         return new ResponseEntity<>(build, httpStatus);
     }
+
+    //     Default exception handler
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<HttpResponse> internalServerErrorException(Exception exception) {
+//        log.error(exception.getMessage());
+//        return createHttpResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG);
+//    }
+
+    //    @ExceptionHandler(IOException.class)
+//    public ResponseEntity<HttpResponse> iOException(IOException exception) {
+//        log.error(exception.getMessage());
+//        return createHttpResponse(INTERNAL_SERVER_ERROR, ERROR_PROCESSING_FILE);
+//    }
 }
