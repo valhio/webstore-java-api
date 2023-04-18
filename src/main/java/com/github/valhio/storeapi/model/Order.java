@@ -1,16 +1,19 @@
 package com.github.valhio.storeapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.valhio.storeapi.enumeration.OrderStatus;
 import com.github.valhio.storeapi.enumeration.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
@@ -22,6 +25,8 @@ public class Order extends Auditable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String orderId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -68,4 +73,12 @@ public class Order extends Auditable<String> {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
 
+    @PostPersist // This method will be executed after the entity is persisted
+    public void generateOrderId() {
+        String prefix = "KB";
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+//        String dateTimeString = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddss"));
+        int randomNum = ThreadLocalRandom.current().nextInt(100, 999);
+        this.orderId = prefix + date + randomNum + this.id;
+    }
 }
