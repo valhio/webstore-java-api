@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface OrderRepository extends PagingAndSortingRepository<Order, Long> {
 
@@ -19,6 +21,8 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
     @Query("select o from Order o where o.user.userId = ?1 order by o.orderDate desc")
     Iterable<Order> findAllByUserIdOrderByOrderDateDesc(String userId);
 
+    @Query("select o from Order o where o.orderId = ?1")
+    Optional<Order> findByOrderNumber(String orderNumber);
 
 //    @Query("select o from Order o where o.user.userId like %?1%")
 //    Iterable<Order> findAllByUserIdOrderByOrderDateDesc(String userId);
