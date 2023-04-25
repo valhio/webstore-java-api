@@ -49,7 +49,7 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
     }
 
     @Override
-    public boolean hasLiked(Long productReviewId, String userId) {
-        return reviewLikeRepository.existsByReview_IdAndUser_UserId(productReviewId, userId);
+    public boolean hasLiked(Long productReviewId, String email) {
+        return reviewLikeRepository.existsByReview_IdAndUser_Email(productReviewId, email);
     }
 }

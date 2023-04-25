@@ -12,6 +12,6 @@ public interface ReviewLikeService {
 
     int getLikesCount(Long productReviewId);
 
-    boolean hasLiked(Long productReviewId, String userId);
+    boolean hasLiked(Long productReviewId, String email);
 
 }
