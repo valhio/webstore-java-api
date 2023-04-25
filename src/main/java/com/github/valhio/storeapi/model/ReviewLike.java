@@ -17,7 +17,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "product_review")
+@Table(name = "review_like")
 public class ReviewLike {
 
     @Id
