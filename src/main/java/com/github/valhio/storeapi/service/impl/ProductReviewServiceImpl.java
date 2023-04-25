@@ -60,4 +60,10 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         return productReviewRepository.findAllByProductId(productId)
                 .orElseThrow(() -> new ProductReviewNotFoundException("Product review not found with id: " + productId));
     }
+
+    @Override
+    public ProductReview findById(Long productReviewId) throws ProductReviewNotFoundException {
+        return productReviewRepository.findById(productReviewId)
+                .orElseThrow(() -> new ProductReviewNotFoundException("Product review not found with id: " + productReviewId));
+    }
 }

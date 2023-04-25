@@ -19,4 +19,5 @@ public interface ProductReviewService {
     List<ProductReview> getAllProductReviewsForProduct(Long productId) throws ProductReviewNotFoundException;
 
 
+    ProductReview findById(Long productReviewId) throws ProductReviewNotFoundException;
 }
