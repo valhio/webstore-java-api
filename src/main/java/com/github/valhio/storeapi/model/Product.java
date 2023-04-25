@@ -1,9 +1,11 @@
 package com.github.valhio.storeapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -28,4 +30,9 @@ public class Product  {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("product")
+    @OrderBy("reviewDate DESC")
+    private Set<ProductReview> productReviews;
 }
