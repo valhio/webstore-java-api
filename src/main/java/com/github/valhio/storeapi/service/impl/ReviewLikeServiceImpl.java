@@ -39,8 +39,8 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
     }
 
     @Override
-    public void removeLike(Long productReviewId, String userId) {
-
+    public void removeLike(Long productReviewId) {
+        reviewLikeRepository.findById(productReviewId).ifPresent(reviewLikeRepository::delete);
     }
 
     @Override

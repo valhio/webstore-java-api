@@ -8,7 +8,7 @@ public interface ReviewLikeService {
 
     ReviewLike addLike(Long productReviewId, String userId) throws UserNotFoundException, ProductReviewNotFoundException;
 
-    void removeLike(Long productReviewId, String userId);
+    void removeLike(Long reviewLikeId);
 
     boolean hasLiked(Long productReviewId, String userId);
 
