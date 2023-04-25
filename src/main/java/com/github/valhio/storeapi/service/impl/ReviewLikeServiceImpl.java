@@ -27,9 +27,9 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
     }
 
     @Override
-    public ReviewLike addLike(Long productReviewId, String userId) throws UserNotFoundException, ProductReviewNotFoundException {
+    public ReviewLike addLike(Long productReviewId, String email) throws UserNotFoundException, ProductReviewNotFoundException {
         ProductReview productReview = productReviewService.findById(productReviewId);
-        User user = userService.findUserByUserId(userId);
+        User user = userService.findUserByEmail(email);
 
         ReviewLike reviewLike = new ReviewLike();
         reviewLike.setReview(productReview);

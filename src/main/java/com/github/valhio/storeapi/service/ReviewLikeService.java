@@ -6,7 +6,7 @@ import com.github.valhio.storeapi.model.ReviewLike;
 
 public interface ReviewLikeService {
 
-    ReviewLike addLike(Long productReviewId, String userId) throws UserNotFoundException, ProductReviewNotFoundException;
+    ReviewLike addLike(Long productReviewId, String email) throws UserNotFoundException, ProductReviewNotFoundException;
 
     void removeLike(Long reviewLikeId);
 
