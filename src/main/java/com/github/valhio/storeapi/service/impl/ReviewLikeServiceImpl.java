@@ -28,6 +28,8 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
 
     @Override
     public ReviewLike addLike(Long productReviewId, String email) throws UserNotFoundException, ProductReviewNotFoundException {
+        if (this.hasLiked(productReviewId, email)) return null;
+
         ProductReview productReview = productReviewService.findById(productReviewId);
         User user = userService.findUserByEmail(email);
 
