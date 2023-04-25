@@ -3,10 +3,7 @@ package com.github.valhio.storeapi.controller;
 import com.github.valhio.storeapi.exception.domain.ProductReviewNotFoundException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.service.ReviewLikeService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/review-like")
@@ -21,5 +18,10 @@ public class ReviewLikeController {
     @PostMapping("/review/{productReviewId}/vote/add")
     public void addLike(@PathVariable Long productReviewId) throws UserNotFoundException, ProductReviewNotFoundException {
         reviewLikeService.addLike(productReviewId, "a@a.com");
+    }
+
+    @GetMapping("/review/{productReviewId}/vote/count")
+    public int getLikesCount(@PathVariable Long productReviewId) {
+        return reviewLikeService.getLikesCount(productReviewId);
     }
 }

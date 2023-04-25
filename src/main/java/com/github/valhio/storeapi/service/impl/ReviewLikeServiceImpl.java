@@ -44,6 +44,11 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
     }
 
     @Override
+    public int getLikesCount(Long productReviewId) {
+        return reviewLikeRepository.findAllByReview_Id(productReviewId).size();
+    }
+
+    @Override
     public boolean hasLiked(Long productReviewId, String userId) {
         return reviewLikeRepository.existsByReview_IdAndUser_UserId(productReviewId, userId);
     }

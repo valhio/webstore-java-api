@@ -10,6 +10,8 @@ public interface ReviewLikeService {
 
     void removeLike(Long reviewLikeId);
 
+    int getLikesCount(Long productReviewId);
+
     boolean hasLiked(Long productReviewId, String userId);
 
 }
