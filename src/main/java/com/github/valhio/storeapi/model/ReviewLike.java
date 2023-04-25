@@ -1,5 +1,6 @@
 package com.github.valhio.storeapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ public class ReviewLike {
 
     @ManyToOne(fetch = FetchType.LAZY) // FetchType.LAZY means that the entity will be loaded only when it is accessed
     @JoinColumn(name = "review_id")
+    @JsonIgnoreProperties("likes")
     private ProductReview review;
 
     @ManyToOne(fetch = FetchType.LAZY)
