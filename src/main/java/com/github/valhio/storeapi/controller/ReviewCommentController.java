@@ -28,7 +28,7 @@ public class ReviewCommentController {
     }
 
     @GetMapping("/review/{productReviewId}/all")
-    public ResponseEntity<?> getAllCommentsForReview(@PathVariable Long productReviewId) {
+    public ResponseEntity<List<ReviewComment>> getAllCommentsForReview(@PathVariable Long productReviewId) {
         return ResponseEntity.ok(reviewCommentService.findAllByReviewId(productReviewId));
     }
 
