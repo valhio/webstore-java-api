@@ -25,4 +25,9 @@ public class ReviewCommentController {
         return ResponseEntity.ok(reviewCommentService.addComment(productReviewId, auth.getEmail(), reviewCommentRequest.getComment()));
     }
 
+    @GetMapping("/review/{productReviewId}/all")
+    public ResponseEntity<?> getAllCommentsForReview(@PathVariable Long productReviewId) {
+        return ResponseEntity.ok(reviewCommentService.findAllByReviewId(productReviewId));
+    }
+
 }
