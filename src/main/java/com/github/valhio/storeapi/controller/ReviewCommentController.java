@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/review-comment")
 public class ReviewCommentController {
@@ -28,6 +30,11 @@ public class ReviewCommentController {
     @GetMapping("/review/{productReviewId}/all")
     public ResponseEntity<?> getAllCommentsForReview(@PathVariable Long productReviewId) {
         return ResponseEntity.ok(reviewCommentService.findAllByReviewId(productReviewId));
+    }
+
+    @GetMapping("/review/{productReviewId}/has-commented")
+    public ResponseEntity<Boolean> hasCommented(@PathVariable Long productReviewId, @AuthenticationPrincipal UserPrincipal auth) {
+        return ResponseEntity.ok(reviewCommentService.hasCommented(productReviewId, auth.getEmail()));
     }
 
 }
