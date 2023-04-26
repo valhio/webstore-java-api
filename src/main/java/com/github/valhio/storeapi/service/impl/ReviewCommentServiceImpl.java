@@ -47,6 +47,6 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
     @Override
     public boolean hasCommented(Long productReviewId, String email) {
-        return false;
+        return reviewCommentRepository.existsByReviewIdAndUserEmail(productReviewId, email);
     }
 }
