@@ -18,5 +18,5 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
     Optional<ReviewLike> findByProductReviewIdAndUserEmail(Long productReviewId, String email);
 
     @Query("SELECT r FROM ReviewLike r WHERE r.review.id = ?1")
-    Collection<Object> findAllByReview_Id(Long productReviewId);
+    List<ReviewLike> findAllByReviewId(Long productReviewId);
 }
