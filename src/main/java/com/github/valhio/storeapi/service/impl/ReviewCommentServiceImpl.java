@@ -1,6 +1,7 @@
 package com.github.valhio.storeapi.service.impl;
 
 import com.github.valhio.storeapi.model.ReviewComment;
+import com.github.valhio.storeapi.repository.ReviewCommentRepository;
 import com.github.valhio.storeapi.service.ReviewCommentService;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,11 @@ import java.util.List;
 @Service
 public class ReviewCommentServiceImpl implements ReviewCommentService {
 
-    private final ReviewRepository reviewRepository;
+    private final ReviewCommentRepository reviewCommentRepository;
+
+    public ReviewCommentServiceImpl(ReviewCommentRepository reviewCommentRepository) {
+        this.reviewCommentRepository = reviewCommentRepository;
+    }
 
     @Override
     public List<ReviewComment> findAllByReviewId(Long productReviewId) {
