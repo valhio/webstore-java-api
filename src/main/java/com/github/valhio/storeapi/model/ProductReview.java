@@ -40,9 +40,11 @@ public class ProductReview {
     private User user;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"review", "user"})
     private List<ReviewLike> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"review", "user"})
     private List<ReviewComment> comments = new ArrayList<>();
 
     private Date reviewDate;
