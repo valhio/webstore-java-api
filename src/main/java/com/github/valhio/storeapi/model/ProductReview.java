@@ -42,6 +42,9 @@ public class ProductReview {
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewLike> likes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewComment> comments = new ArrayList<>();
+
     private Date reviewDate;
 
 }
