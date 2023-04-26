@@ -4,11 +4,13 @@ import com.github.valhio.storeapi.exception.domain.ProductReviewNotFoundExceptio
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.ReviewLike;
 
+import java.util.List;
+
 public interface ReviewLikeService {
 
     ReviewLike addLike(Long productReviewId, String email) throws UserNotFoundException, ProductReviewNotFoundException;
 
-    void removeLike(Long reviewLikeId);
+    void removeLike(Long productReviewId, String email);
 
     int getLikesCount(Long productReviewId);
 
