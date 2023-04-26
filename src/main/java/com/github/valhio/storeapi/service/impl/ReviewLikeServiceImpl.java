@@ -12,6 +12,7 @@ import com.github.valhio.storeapi.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class ReviewLikeServiceImpl implements ReviewLikeService {
@@ -47,11 +48,16 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
 
     @Override
     public int getLikesCount(Long productReviewId) {
-        return reviewLikeRepository.findAllByReview_Id(productReviewId).size();
+        return reviewLikeRepository.findAllByReviewId(productReviewId).size();
     }
 
     @Override
     public boolean hasLiked(Long productReviewId, String email) {
         return reviewLikeRepository.existsByReview_IdAndUser_Email(productReviewId, email);
+    }
+
+    @Override
+    public List<ReviewLike> findAllByReviewId(Long productReviewId) {
+        return reviewLikeRepository.findAllByReviewId(productReviewId);
     }
 }

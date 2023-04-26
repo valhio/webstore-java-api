@@ -16,4 +16,6 @@ public interface ReviewLikeService {
 
     boolean hasLiked(Long productReviewId, String email);
 
+    List<ReviewLike> findAllByReviewId(Long productReviewId);
+
 }
