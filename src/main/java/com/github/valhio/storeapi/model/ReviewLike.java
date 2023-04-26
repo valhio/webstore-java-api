@@ -25,12 +25,13 @@ public class ReviewLike {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // FetchType.LAZY means that the entity will be loaded only when it is accessed
+    @ManyToOne() // FetchType.LAZY means that the entity will be loaded only when it is accessed
     @JoinColumn(name = "review_id")
-    @JsonIgnoreProperties("likes")
+    @JsonIgnoreProperties({"likes", "user"})
     private ProductReview review;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
+    // FetchType.LAZY means that the entity will be loaded only when it is accessed. FetchType.EAGER means that the entity will be loaded immediately.
     @JoinColumn(name = "user_id")
     private User user;
 
