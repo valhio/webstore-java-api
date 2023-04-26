@@ -1,5 +1,6 @@
 package com.github.valhio.storeapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class ReviewComment {
 
     @ManyToOne()
     @JoinColumn(name = "review_id")
+    @JsonIgnoreProperties({"comments", "likes", "user"})
     private ProductReview review;
 
     @ManyToOne()
