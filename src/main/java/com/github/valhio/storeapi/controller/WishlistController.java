@@ -21,7 +21,6 @@ public class WishlistController {
 
     @PostMapping("/add/{productId}/{userId}")
     public ResponseEntity<Favorite> addProductToFavourites(@PathVariable Long productId, @PathVariable String userId) throws UserNotFoundException, ProductNotFoundException {
-        System.out.println("userId = " + userId);
         Favorite favoriteByUserIdAndProductId = null;
         try {
             favoriteByUserIdAndProductId = this.wishlistService.findFavouriteByUserIdAndProductId(userId, productId);
