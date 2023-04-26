@@ -26,6 +26,11 @@ public class ReviewLikeController {
         reviewLikeService.addLike(productReviewId, auth.getEmail());
     }
 
+    @DeleteMapping("/review/{productReviewId}/vote/remove")
+    public void removeLike(@PathVariable Long productReviewId, @AuthenticationPrincipal UserPrincipal auth) {
+        reviewLikeService.removeLike(productReviewId, auth.getEmail());
+    }
+
     @GetMapping("/review/{productReviewId}/vote/count")
     public int getLikesCount(@PathVariable Long productReviewId) {
         return reviewLikeService.getLikesCount(productReviewId);
