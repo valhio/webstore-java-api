@@ -8,10 +8,14 @@ server:
 spring:
   jackson:
     default-property-inclusion: non_null
-  datasource:
-    url: jdbc:mysql://localhost:3306/store
-    username: root
-    password: 1234
+  #  datasource:
+  #    url: jdbc:mysql://localhost:3306/store
+  #    username: root
+  #    password: 1234
+  data:
+    mongodb:
+      uri: mongodb+srv://valentin:1234@cluster0.mongodb.net/webstore
+      database: webstore
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     generate-ddl: true
