@@ -47,18 +47,23 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.mysql</groupId>-->
+        <!--            <artifactId>mysql-connector-j</artifactId>-->
+        <!--            <scope>runtime</scope>-->
+        <!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-mongodb -->
         <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-mongodb -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
-            <version>4.2.1</version>
+            <version>3.4.18</version> <!-- only works with version 3, all version 4's do not work for some reason -->
         </dependency>
-
+        <dependency>
+            <!-- This is needed otherwise the following error is thrown: Field groceryItemRepo in com.github.valhio.storeapi.StoreApiApplication required a bean named 'mongoTemplate' that could not be found.           -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>

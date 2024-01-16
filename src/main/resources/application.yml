@@ -14,10 +14,10 @@ spring:
   #    password: 1234
   data:
     mongodb:
-      uri: mongodb+srv://valentin:1234@cluster0.mongodb.net/webstore
+      uri: mongodb+srv://valentin:1234@cluster0.jhs2tkc.mongodb.net/webstore
       database: webstore
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+#    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     generate-ddl: true
     show-sql: false
     hibernate:
