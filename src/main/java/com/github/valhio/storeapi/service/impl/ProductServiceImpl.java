@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
-    private static final String WITH_ID_WAS_NOT_FOUND = "Entity with id: %d was not found.";
+    private static final String WITH_ID_WAS_NOT_FOUND = "Entity with id: %s was not found.";
 
     private final ProductRepository repository;
 

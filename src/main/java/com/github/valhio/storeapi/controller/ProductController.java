@@ -46,7 +46,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> findById(@PathVariable Long id) throws ProductNotFoundException {
+    public ResponseEntity<Product> findById(@PathVariable String id) throws ProductNotFoundException {
         Product data = productService.findById(id);
         return ResponseEntity.ok(data);
 
@@ -88,7 +88,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}/delete")
     @ResponseBody
-    public ResponseEntity<?> deleteEntity(@PathVariable Long id) throws ProductNotFoundException {
+    public ResponseEntity<?> deleteEntity(@PathVariable String id) throws ProductNotFoundException {
         Product dto = productService.findById(id);
         productService.deleteById(id);
         return ResponseEntity.ok(HttpResponse.builder()
