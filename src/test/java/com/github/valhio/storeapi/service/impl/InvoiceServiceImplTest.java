@@ -2,9 +2,6 @@ package com.github.valhio.storeapi.service.impl;
 
 import com.github.valhio.storeapi.enumeration.PaymentMethod;
 import com.github.valhio.storeapi.exception.domain.InvoiceNotFoundException;
-import com.github.valhio.storeapi.model.Invoice;
-import com.github.valhio.storeapi.model.Order;
-import com.github.valhio.storeapi.repository.InvoiceRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

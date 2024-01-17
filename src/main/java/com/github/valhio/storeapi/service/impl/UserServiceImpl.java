@@ -180,7 +180,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void validateEmailExists(String email) throws EmailExistException, IllegalArgumentException {
         validateString(email);
-        if (userRepository.existsByEmail(email)) {
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user != null) {
             throw new EmailExistException(EMAIL_ALREADY_EXISTS);
         }
     }

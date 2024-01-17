@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 /*
     The JpaEnversConfiguration class is a configuration class that enables caching and JPA auditing in a Spring application.
@@ -20,6 +22,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @Configuration
 @EnableCaching
 @EnableJpaAuditing
+@EnableMongoAuditing
 public class JpaEnversConfiguration {
 
     @Bean

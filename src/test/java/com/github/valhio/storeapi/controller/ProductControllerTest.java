@@ -2,8 +2,6 @@ package com.github.valhio.storeapi.controller;
 
 import com.github.valhio.storeapi.domain.HttpResponse;
 import com.github.valhio.storeapi.exception.domain.ProductNotFoundException;
-import com.github.valhio.storeapi.model.Product;
-import com.github.valhio.storeapi.service.ProductService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
