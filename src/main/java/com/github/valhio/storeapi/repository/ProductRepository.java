@@ -8,8 +8,13 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductRepository extends MongoRepository<Product, String> {
+
+    @Query(value = "{ '_id': ?0 }")
+    Optional<Product> findProductWithReviewsById(String productId);
 
     // '$or' is
     @Query("{'$or': [{'name': { $regex: ?0, $options: 'i' }}, {'description': { $regex: ?0, $options: 'i' }}, {'price': { $regex: ?0, $options: 'i' }}]}")

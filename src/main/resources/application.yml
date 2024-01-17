@@ -14,14 +14,14 @@ spring:
   #    password: 1234
   data:
     mongodb:
-      uri: mongodb+srv://valentin:1234@cluster0.jhs2tkc.mongodb.net/webstore
+      uri: mongodb+srv://valentin:1234@cluster0.jhs2tkc.mongodb.net/webstore?ssl=true&sslInvalidHostNameAllowed=true
       database: webstore
   jpa:
 #    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     generate-ddl: true
     show-sql: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true

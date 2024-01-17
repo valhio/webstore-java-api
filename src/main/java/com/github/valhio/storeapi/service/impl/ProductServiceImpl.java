@@ -37,7 +37,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product findById(String id) throws ProductNotFoundException {
-        return repository.findById(id)
+        return repository.findProductWithReviewsById(id)
                 .orElseThrow(() -> new ProductNotFoundException(String.format(WITH_ID_WAS_NOT_FOUND, id)));
     }
 

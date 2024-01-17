@@ -10,7 +10,7 @@ public class ProductReviewRequest {
     private int rating;
     private String title;
     private String reviewText;
-    private Long productId;
+    private String productId;
     private String userId;
 
 }
