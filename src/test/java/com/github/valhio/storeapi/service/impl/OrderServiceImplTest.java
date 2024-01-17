@@ -4,6 +4,7 @@ import com.github.valhio.storeapi.exception.domain.OrderNotFoundException;
 import com.github.valhio.storeapi.exception.domain.ProductNotFoundException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.*;
+import com.github.valhio.storeapi.service.ProductService;
 import com.github.valhio.storeapi.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

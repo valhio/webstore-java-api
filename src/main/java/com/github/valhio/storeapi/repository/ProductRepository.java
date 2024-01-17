@@ -3,21 +3,19 @@ package com.github.valhio.storeapi.repository;
 import com.github.valhio.storeapi.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductRepository extends PagingAndSortingRepository<Product, Long> {
+public interface ProductRepository extends MongoRepository<Product, String> {
 
-    @Query("select p from Product p where concat(" +
-            "p.name" +
-            ",p.description" +
-            ",p.price" +
-            ") like %?1%")
+    // '$or' is
+    @Query("{'$or': [{'name': { $regex: ?0, $options: 'i' }}, {'description': { $regex: ?0, $options: 'i' }}, {'price': { $regex: ?0, $options: 'i' }}]}")
     Page<Product> findAllContaining(String keyword, Pageable paging);
 
-    @Query("select p from Product p where p.name like %?1% and p.quantity > 0")
+    @Query("{'name': { $regex: ?0, $options: 'i' }, 'quantity': { $gt: 0 }}")
     Page<Product> findByNameContaining(String name, Pageable paging);
 
 }

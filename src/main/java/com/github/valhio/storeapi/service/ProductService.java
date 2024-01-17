@@ -8,13 +8,13 @@ public interface ProductService {
 
     Page<Product> findAll(Integer pageNo, Integer pageSize, String sortBy, String keyword);
 
-    Product findById(Long id) throws ProductNotFoundException;
+    Product findById(String id) throws ProductNotFoundException;
 
     Product save(Product product);
 
     Product update(Product product);
 
-    void deleteById(Long id);
+    void deleteById(String id);
 
-    void removeQuantity(Long id, int quantity) throws ProductNotFoundException;
+    void removeQuantity(String id, int quantity) throws ProductNotFoundException;
 }

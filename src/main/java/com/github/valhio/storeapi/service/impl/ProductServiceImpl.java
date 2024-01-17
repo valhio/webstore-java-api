@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findById(Long id) throws ProductNotFoundException {
+    public Product findById(String id) throws ProductNotFoundException {
         return repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(String.format(WITH_ID_WAS_NOT_FOUND, id)));
     }
@@ -52,12 +52,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         repository.deleteById(id);
     }
 
     @Override
-    public void removeQuantity(Long id, int quantity) throws ProductNotFoundException {
+    public void removeQuantity(String id, int quantity) throws ProductNotFoundException {
         Product product = findById(id);
         product.setQuantity(Math.max(product.getQuantity() - quantity, 0));
         update(product);

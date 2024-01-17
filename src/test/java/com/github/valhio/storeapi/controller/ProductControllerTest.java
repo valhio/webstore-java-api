@@ -2,6 +2,8 @@ package com.github.valhio.storeapi.controller;
 
 import com.github.valhio.storeapi.domain.HttpResponse;
 import com.github.valhio.storeapi.exception.domain.ProductNotFoundException;
+import com.github.valhio.storeapi.model.Product;
+import com.github.valhio.storeapi.service.ProductService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +28,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
-    private static final Long PRODUCT_ID = 1L;
+    private static final String PRODUCT_ID = "product_id";
     private static final String PRODUCT_NAME = "Product";
     private static final Integer PRODUCT_PRICE = 10;
     private final ProductNotFoundException exception =
