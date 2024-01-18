@@ -7,6 +7,7 @@ import com.github.valhio.storeapi.model.ProductReview;
 import com.github.valhio.storeapi.model.ReviewLike;
 import com.github.valhio.storeapi.model.UserPrincipal;
 import com.github.valhio.storeapi.request.ProductReviewRequest;
+import com.github.valhio.storeapi.request.ReviewCommentRequest;
 import com.github.valhio.storeapi.service.ProductReviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,21 @@ public class ProductReviewController {
         } catch (UserNotFoundException | ProductReviewNotFoundException e) {
             // Handle exceptions appropriately, e.g., return a 404 response for ProductReviewNotFoundException
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/{reviewId}/comments")
+    public ResponseEntity<ProductReview> addCommentToReview(
+            @PathVariable String reviewId,
+            @RequestBody ReviewCommentRequest reviewCommentRequest,
+            @AuthenticationPrincipal UserPrincipal auth) {
+        try {
+            ProductReview updatedReview = productReviewService.addComment(reviewId, reviewCommentRequest.getComment(), auth.getUserId());
+            return ResponseEntity.ok(updatedReview);
+        } catch (ProductReviewNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 }

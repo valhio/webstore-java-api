@@ -24,4 +24,6 @@ public interface ProductReviewService {
     ProductReview findById(String productReviewId) throws ProductReviewNotFoundException;
 
     List<ReviewLike> likeOrDislikeReview(String reviewId, String userId) throws UserNotFoundException, ProductReviewNotFoundException;
+
+    ProductReview addComment(String reviewId, String comment, String userId) throws ProductReviewNotFoundException, UserNotFoundException;
 }

@@ -10,7 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewCommentRequest {
-
         private String comment;
-        private Long reviewId;
+        private String reviewId;
 }

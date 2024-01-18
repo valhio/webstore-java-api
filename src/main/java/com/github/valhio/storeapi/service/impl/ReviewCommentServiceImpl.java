@@ -28,7 +28,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
     @Override
     public List<ReviewComment> findAllByReviewId(String productReviewId) {
-        return reviewCommentRepository.findAllByReview_Id(productReviewId);
+        return reviewCommentRepository.findByReviewId(productReviewId);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
         ReviewComment reviewComment = new ReviewComment();
         reviewComment.setUser(user);
-        reviewComment.setReview(productReview);
+//        reviewComment.setReview(productReview);
         reviewComment.setComment(comment);
         reviewComment.setCommentDate(new java.util.Date());
 
@@ -47,6 +47,6 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
     @Override
     public boolean hasCommented(String productReviewId, String email) {
-        return reviewCommentRepository.existsByReview_IdAndUserEmail(productReviewId, email);
+        return reviewCommentRepository.existsByReviewIdAndUser_Email(productReviewId, email);
     }
 }

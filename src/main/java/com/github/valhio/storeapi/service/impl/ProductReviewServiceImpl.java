@@ -3,9 +3,7 @@ package com.github.valhio.storeapi.service.impl;
 import com.github.valhio.storeapi.exception.domain.ProductNotFoundException;
 import com.github.valhio.storeapi.exception.domain.ProductReviewNotFoundException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
-import com.github.valhio.storeapi.model.Product;
-import com.github.valhio.storeapi.model.ProductReview;
-import com.github.valhio.storeapi.model.ReviewLike;
+import com.github.valhio.storeapi.model.*;
 import com.github.valhio.storeapi.repository.ProductReviewRepository;
 import com.github.valhio.storeapi.repository.ReviewCommentRepository;
 import com.github.valhio.storeapi.repository.ReviewLikeRepository;
@@ -123,5 +121,23 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         productReviewRepository.save(productReview);
 
         return productReview.getLikes();
+    }
+
+    @Override
+    public ProductReview addComment(String reviewId, String comment, String userId) throws ProductReviewNotFoundException, UserNotFoundException {
+        ProductReview productReview = productReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ProductReviewNotFoundException("Product review with id: " + reviewId + " was not found."));
+        User user = userService.findUserByUserId(userId);
+
+        ReviewComment newComment = new ReviewComment();
+        newComment.setReviewId(reviewId);
+        newComment.setComment(comment);
+        newComment.setUser(user);
+        newComment.setCommentDate(new Date());
+        ReviewComment savedComment = reviewCommentRepository.save(newComment);
+
+        productReview.getComments().add(savedComment);
+
+        return productReviewRepository.save(productReview);
     }
 }

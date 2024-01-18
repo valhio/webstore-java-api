@@ -6,12 +6,15 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReviewCommentRepository extends MongoRepository<ReviewComment, String> {
+    boolean existsByReviewIdAndUser_Email(String reviewId, String email);
+    List<ReviewComment> findByReviewId(String reviewId);
 
-    List<ReviewComment> findAllByReview_Id(String productReviewId);
-
-    @Query("{'review.id': ?0, 'user.email': ?1}")
-    boolean existsByReview_IdAndUserEmail(String productReviewId, String email);
+//    List<ReviewComment> findAllByReview_Id(String productReviewId);
+//
+//    @Query("{'review.id': ?0, 'user.email': ?1}")
+//    boolean existsByReview_IdAndUserEmail(String productReviewId, String email);
 }
