@@ -20,7 +20,7 @@ public interface UserService {
 
     User update(User newUser, String originalEmail) throws EmailExistException, UserNotFoundException;
 
-    void delete(Long id);
+    void delete(String id);
 
     void deleteByUserId(String userId);
 

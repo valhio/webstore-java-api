@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.github.valhio.storeapi.constant.UserImplConstant.*;
@@ -113,7 +112,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(String id) {
         userRepository.findById(id).ifPresent(userRepository::delete);
     }
 

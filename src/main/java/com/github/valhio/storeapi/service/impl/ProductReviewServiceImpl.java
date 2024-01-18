@@ -5,7 +5,6 @@ import com.github.valhio.storeapi.exception.domain.ProductReviewNotFoundExceptio
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.Product;
 import com.github.valhio.storeapi.model.ProductReview;
-import com.github.valhio.storeapi.model.ReviewComment;
 import com.github.valhio.storeapi.model.ReviewLike;
 import com.github.valhio.storeapi.repository.ProductReviewRepository;
 import com.github.valhio.storeapi.repository.ReviewCommentRepository;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductReviewServiceImpl implements ProductReviewService {
@@ -94,5 +94,34 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     public ProductReview findById(String productReviewId) throws ProductReviewNotFoundException {
         return productReviewRepository.findById(productReviewId)
                 .orElseThrow(() -> new ProductReviewNotFoundException("Product review not found with id: " + productReviewId));
+    }
+
+    @Override
+    public List<ReviewLike> likeOrDislikeReview(String reviewId, String userId) throws UserNotFoundException, ProductReviewNotFoundException {
+        ProductReview productReview = productReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ProductReviewNotFoundException("Product review with id: " + reviewId + " was not found."));
+
+        Optional<ReviewLike> existingLike = productReview.getLikes()
+                .stream()
+                .filter(like -> like.getUserId().equals(userId))
+                .findFirst();
+
+        // Remove existing like if it exists
+        existingLike.ifPresent(like -> productReview.getLikes().remove(like));
+
+        // Add new like if it doesn't exist
+        if (!existingLike.isPresent()) {
+            ReviewLike newLike = new ReviewLike();
+            newLike.setUserId(userId);
+            newLike.setReviewId(reviewId);
+            newLike.setLikeDate(new java.util.Date());
+            reviewLikeRepository.save(newLike);
+
+            productReview.getLikes().add(newLike);
+        }
+
+        productReviewRepository.save(productReview);
+
+        return productReview.getLikes();
     }
 }

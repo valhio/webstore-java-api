@@ -207,7 +207,7 @@ public class UserController extends ExceptionHandling {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('DELETE')")
-    public ResponseEntity<HttpResponse> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<HttpResponse> delete(@PathVariable("id") String id) {
         userService.delete(id);
         return ResponseEntity.ok(HttpResponse.builder()
                 .timeStamp(new Date())
