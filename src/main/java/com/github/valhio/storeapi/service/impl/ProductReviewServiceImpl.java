@@ -5,7 +5,11 @@ import com.github.valhio.storeapi.exception.domain.ProductReviewNotFoundExceptio
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.Product;
 import com.github.valhio.storeapi.model.ProductReview;
+import com.github.valhio.storeapi.model.ReviewComment;
+import com.github.valhio.storeapi.model.ReviewLike;
 import com.github.valhio.storeapi.repository.ProductReviewRepository;
+import com.github.valhio.storeapi.repository.ReviewCommentRepository;
+import com.github.valhio.storeapi.repository.ReviewLikeRepository;
 import com.github.valhio.storeapi.request.ProductReviewRequest;
 import com.github.valhio.storeapi.service.ProductReviewService;
 import com.github.valhio.storeapi.service.ProductService;
@@ -21,29 +25,30 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final ProductReviewRepository productReviewRepository;
     private final UserService userService;
     private final ProductService productService;
+    private final ReviewLikeRepository reviewLikeRepository;
+    private final ReviewCommentRepository reviewCommentRepository;
 
-
-    public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository, UserService userService, ProductService productService) {
+    public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository, UserService userService, ProductService productService, ReviewLikeRepository reviewLikeRepository, ReviewCommentRepository reviewCommentRepository) {
         this.productReviewRepository = productReviewRepository;
         this.userService = userService;
         this.productService = productService;
+        this.reviewLikeRepository = reviewLikeRepository;
+        this.reviewCommentRepository = reviewCommentRepository;
     }
 
     @Override
-    public ProductReview addProductReview(ProductReviewRequest productReviewRequest) throws UserNotFoundException, ProductNotFoundException {
+    public ProductReview addProductReview(ProductReviewRequest productReviewRequest, String userId) throws UserNotFoundException, ProductNotFoundException {
         ProductReview productReview = new ProductReview();
         productReview.setRating(productReviewRequest.getRating());
         productReview.setTitle(productReviewRequest.getTitle());
         productReview.setReviewText(productReviewRequest.getReviewText());
-//        productReview.setProductId(productReviewRequest.getProductId());
         productReview.setProduct(productService.findById(productReviewRequest.getProductId()));
-        productReview.setUser(userService.findUserByUserId(productReviewRequest.getUserId()));
+        productReview.setUser(userService.findUserByUserId(userId));
         productReview.setReviewDate(new Date());
 
         ProductReview review = productReviewRepository.save(productReview);
 
         Product product = productService.findById(productReviewRequest.getProductId());
-//        product.getReviewIds().add(review.getId());
         product.getProductReviews().add(review);
         productService.update(product);
 
@@ -60,9 +65,23 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         return productReviewRepository.save(productReview);
     }
 
+    public ProductReview update(ProductReview productReview) {
+        return productReviewRepository.save(productReview);
+    }
+
     @Override
     public void deleteProductReview(String productReviewId) {
-        productReviewRepository.deleteById(productReviewId);
+        ProductReview productReview = productReviewRepository.findById(productReviewId).orElse(null);
+        if (productReview != null) {
+            // Delete associated likes
+            reviewLikeRepository.deleteAll(productReview.getLikes());
+
+            // Delete associated comments
+            reviewCommentRepository.deleteAll(productReview.getComments());
+
+            // Delete the product review itself
+            productReviewRepository.delete(productReview);
+        }
     }
 
     @Override

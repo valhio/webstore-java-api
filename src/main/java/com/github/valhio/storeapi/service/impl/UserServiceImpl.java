@@ -77,7 +77,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User register(User user) throws EmailExistException, IllegalArgumentException {
         validateEmailExists(user.getEmail());
-        user.setUserId(UUID.randomUUID().toString().concat("-" + LocalDateTime.now().getNano()));
 //        user.setUserId(UUID.randomUUID().toString().concat("-" + encodeUsername(user.getUsername())));
         user.setPassword(encodePassword(user.getPassword()));
         user.setCreatedAt(LocalDateTime.now());

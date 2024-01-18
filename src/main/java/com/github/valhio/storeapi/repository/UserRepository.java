@@ -30,7 +30,7 @@ public interface UserRepository extends MongoRepository<User, Long> {
     @Query(value = "{'role': ?0}")
     Optional<Collection<User>> findAllByRole(Role role);
 
-    @Query(value = "{'userId': ?0}")
+    @Query(value = "{'id': ?0}")
     Optional<User> findByUserId(String userId);
 
 //    @Query(value = "SELECT u FROM User u WHERE CONCAT(u.userId , u.firstName, u.lastName, u.email) LIKE %?1%")

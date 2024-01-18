@@ -1,6 +1,8 @@
 package com.github.valhio.storeapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import javax.persistence.CascadeType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,14 +39,26 @@ public class ProductReview {
     private Product product;
 
     @DBRef
+    @JsonIgnoreProperties({"failedLoginAttempts", "authorities", "isActive", "isNotLocked"})
     private User user;
 
     @DBRef
+    @JsonIgnoreProperties({"review"})
     private List<ReviewLike> likes = new ArrayList<>();
 
-    @DBRef
+    @DBRef(lazy = true)
     private List<ReviewComment> comments = new ArrayList<>();
 
     @Field("review_date")
     private Date reviewDate;
+
+    public User getUser() {
+        // Return only the user id, first name, last name and email
+        User user = new User();
+        user.setId(this.user.getId());
+        user.setFirstName(this.user.getFirstName());
+        user.setLastName(this.user.getLastName());
+        user.setEmail(this.user.getEmail());
+        return user;
+    }
 }

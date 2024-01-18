@@ -23,10 +23,8 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends Auditable<String> {
     @Id
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
-
-    private String userId;
 
     @Field("userPassword")
     private String password;

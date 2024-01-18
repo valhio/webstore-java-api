@@ -1,6 +1,7 @@
 package com.github.valhio.storeapi.service.impl;
 
 import com.github.valhio.storeapi.exception.domain.ProductReviewNotFoundException;
+import com.github.valhio.storeapi.exception.domain.ReviewLikeNotFoundException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.ProductReview;
 import com.github.valhio.storeapi.model.ReviewLike;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewLikeServiceImpl implements ReviewLikeService {
@@ -28,23 +30,53 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
     }
 
     @Override
-    public ReviewLike addLike(String productReviewId, String email) throws UserNotFoundException, ProductReviewNotFoundException {
-        if (this.hasLiked(productReviewId, email)) return null;
+    public List<ReviewLike> addLike(String productReviewId, String id) throws UserNotFoundException, ProductReviewNotFoundException {
+        if (this.hasLiked(productReviewId, id)) {
+            throw new IllegalArgumentException("User has already liked the review.");
+        }
 
-        ProductReview productReview = productReviewService.findById(productReviewId);
-        User user = userService.findUserByEmail(email);
+        try {
+            ProductReview productReview = productReviewService.findById(productReviewId);
+            User user = userService.findUserByUserId(id);
 
-        ReviewLike reviewLike = new ReviewLike();
-        reviewLike.setReview(productReview);
-        reviewLike.setUser(user);
-        reviewLike.setLikeDate(new Date());
-        return reviewLikeRepository.save(reviewLike);
+            ReviewLike reviewLike = new ReviewLike();
+            reviewLike.setUserId(user.getId());
+            reviewLike.setReviewId(productReviewId);
+            reviewLike.setLikeDate(new Date());
+            ReviewLike savedReviewLike = reviewLikeRepository.save(reviewLike);
+
+            productReview.getLikes().add(savedReviewLike);
+            ProductReview updatedProductReview = productReviewService.update(productReview);
+
+            return updatedProductReview.getLikes();
+        } catch (UserNotFoundException | ProductReviewNotFoundException e) {
+            throw e;
+        }
     }
+
 
     @Override
-    public void removeLike(String productReviewId, String email) {
-        reviewLikeRepository.findByProductReviewIdAndUserEmail(productReviewId, email).ifPresent(reviewLikeRepository::delete);
+    public List<ReviewLike> removeLike(String productReviewId, String userId) throws ProductReviewNotFoundException, ReviewLikeNotFoundException {
+        Optional<ReviewLike> reviewLike = reviewLikeRepository.findByReviewIdAndUserId(productReviewId, userId);
+
+        if (reviewLike.isPresent()) {
+            ProductReview productReview = productReviewService.findById(productReviewId);
+
+            boolean likeRemoved = productReview.getLikes()
+                    .removeIf(like -> like.getId().equals(reviewLike.get().getId()));
+
+            if (!likeRemoved) {
+                throw new ReviewLikeNotFoundException("ReviewLike not found in the product review.");
+            }
+
+            ProductReview updated = productReviewService.update(productReview);
+            reviewLikeRepository.deleteByReviewIdAndUserId(productReviewId, userId);
+            return updated.getLikes();
+        }
+
+        throw new ReviewLikeNotFoundException("ReviewLike not found.");
     }
+
 
     @Override
     public int getLikesCount(String productReviewId) {
@@ -52,8 +84,9 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
     }
 
     @Override
-    public boolean hasLiked(String productReviewId, String email) {
-        return reviewLikeRepository.existsByReview_IdAndUser_Email(productReviewId, email);
+    public boolean hasLiked(String productReviewId, String id) {
+        Optional<ReviewLike> reviewLike = reviewLikeRepository.existsByReview_IdAndUser_Id(productReviewId, id);
+        return reviewLike.isPresent();
     }
 
     @Override

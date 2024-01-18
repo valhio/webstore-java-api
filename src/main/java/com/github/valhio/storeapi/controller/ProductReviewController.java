@@ -4,9 +4,11 @@ import com.github.valhio.storeapi.exception.domain.ProductNotFoundException;
 import com.github.valhio.storeapi.exception.domain.ProductReviewNotFoundException;
 import com.github.valhio.storeapi.exception.domain.UserNotFoundException;
 import com.github.valhio.storeapi.model.ProductReview;
+import com.github.valhio.storeapi.model.UserPrincipal;
 import com.github.valhio.storeapi.request.ProductReviewRequest;
 import com.github.valhio.storeapi.service.ProductReviewService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +25,11 @@ public class ProductReviewController {
 
     @PostMapping("/add")
     @ResponseBody
-    public ResponseEntity<ProductReview> addProductReview(@RequestBody ProductReviewRequest productReviewRequest) throws UserNotFoundException, ProductNotFoundException {
-        return ResponseEntity.ok(productReviewService.addProductReview(productReviewRequest));
+    public ResponseEntity<ProductReview> addProductReview(
+            @RequestBody ProductReviewRequest productReviewRequest,
+            @AuthenticationPrincipal UserPrincipal auth
+    ) throws UserNotFoundException, ProductNotFoundException {
+        return ResponseEntity.ok(productReviewService.addProductReview(productReviewRequest, auth.getUserId()));
     }
 
     @GetMapping("/all")

@@ -51,7 +51,7 @@ public class UserPrincipal implements UserDetails {
     }
 
     public String getUserId() {
-        return user.getUserId();
+        return user.getId();
     }
 
     @Override

@@ -12,4 +12,6 @@ public interface ProductReviewRepository extends MongoRepository<ProductReview, 
 
     Optional<List<ProductReview>> findAllByProductId(String productId);
 
+    @Override
+    Optional<ProductReview> findById(String s);
 }

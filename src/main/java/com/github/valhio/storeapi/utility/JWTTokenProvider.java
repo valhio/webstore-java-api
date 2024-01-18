@@ -87,7 +87,7 @@ public class JWTTokenProvider {
         User user = new User();
         user.setEmail(this.getSubject(token));
         user.setAuthorities(authorities.stream().map(GrantedAuthority::getAuthority).toArray(String[]::new));
-        user.setUserId(this.getUserId(token));
+        user.setId(this.getUserId(token));
         user.setRole(Role.valueOf(this.getUserRole(token)));
         UserPrincipal userPrincipal = new UserPrincipal(user);
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =

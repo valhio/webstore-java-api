@@ -10,9 +10,11 @@ import java.util.List;
 
 public interface ProductReviewService {
 
-    ProductReview addProductReview(ProductReviewRequest productReviewRequest) throws UserNotFoundException, ProductNotFoundException;
+    ProductReview addProductReview(ProductReviewRequest productReviewRequest, String userId) throws UserNotFoundException, ProductNotFoundException;
 
     ProductReview updateProductReview(String productId, String reviewText, int rating) throws ProductReviewNotFoundException;
+
+    ProductReview update(ProductReview productReview);
 
     void deleteProductReview(String productReviewId);
 
