@@ -53,12 +53,12 @@ public class ProductReview {
     private Date reviewDate;
 
     public User getUser() {
-        // Return only the user id, first name, last name and email
-        User user = new User();
-        user.setId(this.user.getId());
-        user.setFirstName(this.user.getFirstName());
-        user.setLastName(this.user.getLastName());
-        user.setEmail(this.user.getEmail());
-        return user;
+        // Return only the res id, first name, last name and email
+        User res = new User();
+        res.setId(this.user.getId());
+        res.setFirstName(this.user.getFirstName());
+        res.setLastName(this.user.getLastName());
+        res.setEmail(this.user.getEmail());
+        return res;
     }
 }
