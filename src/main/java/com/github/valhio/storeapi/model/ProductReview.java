@@ -3,6 +3,8 @@ package com.github.valhio.storeapi.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.valhio.storeapi.serializer.CustomUserSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,7 +41,7 @@ public class ProductReview {
     private Product product;
 
     @DBRef
-    @JsonIgnoreProperties({"failedLoginAttempts", "authorities", "isActive", "isNotLocked"})
+    @JsonSerialize(using = CustomUserSerializer.class)
     private User user;
 
     @DBRef
@@ -52,13 +54,4 @@ public class ProductReview {
     @Field("review_date")
     private Date reviewDate;
 
-    public User getUser() {
-        // Return only the res id, first name, last name and email
-        User res = new User();
-        res.setId(this.user.getId());
-        res.setFirstName(this.user.getFirstName());
-        res.setLastName(this.user.getLastName());
-        res.setEmail(this.user.getEmail());
-        return res;
-    }
 }
