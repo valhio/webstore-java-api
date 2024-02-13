@@ -31,7 +31,8 @@ import java.util.List;
         ProductRepository.class,
         ProductReviewRepository.class,
         ReviewLikeRepository.class,
-        ReviewCommentRepository.class
+        ReviewCommentRepository.class,
+        WishlistRepository.class
 })
 @EnableJpaRepositories(excludeFilters =
 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
@@ -40,7 +41,8 @@ import java.util.List;
         ProductRepository.class,
         ProductReviewRepository.class,
         ReviewLikeRepository.class,
-        ReviewCommentRepository.class
+        ReviewCommentRepository.class,
+        WishlistRepository.class
 }))
 
 public class StoreApiApplication implements CommandLineRunner {
