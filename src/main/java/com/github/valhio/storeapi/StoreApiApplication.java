@@ -1,12 +1,6 @@
 package com.github.valhio.storeapi;
 
-import com.github.valhio.storeapi.model.GroceryItem;
-import com.github.valhio.storeapi.model.Product;
-import com.github.valhio.storeapi.model.ProductReview;
 import com.github.valhio.storeapi.repository.*;
-import com.github.valhio.storeapi.service.ProductReviewService;
-import com.github.valhio.storeapi.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,27 +16,30 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 @SpringBootApplication
 //@EnableMongoRepositories
 @EnableMongoRepositories(basePackageClasses = {
-        ItemRepository.class,
         ProductRepository.class,
         ProductReviewRepository.class,
         ReviewLikeRepository.class,
         ReviewCommentRepository.class,
-        WishlistRepository.class
+        WishlistRepository.class,
+        InvoiceRepository.class,
+        OrderRepository.class,
+        OrderItemRepository.class
 })
 @EnableJpaRepositories(excludeFilters =
 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
         UserRepository.class,
-        ItemRepository.class,
         ProductRepository.class,
         ProductReviewRepository.class,
         ReviewLikeRepository.class,
         ReviewCommentRepository.class,
-        WishlistRepository.class
+        WishlistRepository.class,
+        InvoiceRepository.class,
+        OrderRepository.class,
+        OrderItemRepository.class
 }))
 
 public class StoreApiApplication implements CommandLineRunner {
