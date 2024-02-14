@@ -3,7 +3,6 @@ package com.github.valhio.storeapi.repository;
 import com.github.valhio.storeapi.model.Order;
 import com.github.valhio.storeapi.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -11,8 +10,9 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
 
-    @Query("{'orderDate': -1}")
-    Iterable<Order> findAllOrderByOrderDateDesc();
+    // Find all ordered by order date in descending order
+//    @Query("{orderDate: -1}")
+    Iterable<Order> findAllByOrderByOrderDateDesc();
 
     Iterable<Order> findAllByEmail(String email);
 
@@ -20,6 +20,6 @@ public interface OrderRepository extends MongoRepository<Order, String> {
 
     Iterable<Order> findAllByUserIdOrderByOrderDateDesc(String userId);
 
-    Optional<Order>findByOrderNumber(String orderNumber);
+    Optional<Order> findByOrderNumber(String orderNumber);
 
 }

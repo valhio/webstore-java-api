@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Iterable<Order> findAll() {
-        return repository.findAllOrderByOrderDateDesc();
+        return repository.findAllByOrderByOrderDateDesc();
     }
 
     @Override
