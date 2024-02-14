@@ -1,6 +1,5 @@
 package com.github.valhio.storeapi.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.valhio.storeapi.enumeration.OrderItemStatus;
 import lombok.AllArgsConstructor;
@@ -8,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -25,6 +25,7 @@ public class OrderItem extends Auditable<String> {
     private Order order;
 
     @JsonIgnoreProperties("productReviews")
+    @DBRef(lazy = true)
     private Product product;
 
     private String productName;
